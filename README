@@ -4,6 +4,9 @@ This file replaces Prosodys internal DNS library with a LuaJIT FFI binding to li
 It was mostly created as an experiment to see if it was possible, and to play with LuaJIT
 and its FFI.
 
+With version 2, lib.unbound.lua should work as a standalone library.  Note that you still 
+need to parse the RR data yourself.
+
 See
 * http://prosody.im/
 * http://luajit.org/
