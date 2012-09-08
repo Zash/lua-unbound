@@ -1,8 +1,15 @@
+-- libunbound based net.adns replacement for Prosody IM
+-- Copyright (c) 2012 Kim Alvefur
+-- MIT yada yada FIXME
+
+local setmetatable = setmetatable;
 local ffi = require "ffi";
-local unbound = ffi.load"unbound";
--- libunbound headers
--- https://unbound.net/
--- This file has been preprocessed, as ffi.cdef() doesn't do this
+local char = ffi.new("char *");
+local function tochar(s)
+	return ffi.cast(char, s);
+end
+local libunbound = ffi.load"unbound";
+-- cpp <<< '#include <unbound.h>' | grep '^[^#]'
 ffi.cdef[[
 struct ub_ctx;
 struct ub_result {
@@ -40,8 +47,10 @@ int ub_poll(struct ub_ctx* ctx);
 int ub_wait(struct ub_ctx* ctx);
 int ub_fd(struct ub_ctx* ctx);
 int ub_process(struct ub_ctx* ctx);
-int ub_resolve(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, struct ub_result** result);
-int ub_resolve_async(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, void* mydata, ub_callback_t callback, int* async_id);
+int ub_resolve(struct ub_ctx* ctx, char* name, int rrtype,
+ int rrclass, struct ub_result** result);
+int ub_resolve_async(struct ub_ctx* ctx, char* name, int rrtype,
+ int rrclass, void* mydata, ub_callback_t callback, int* async_id);
 int ub_cancel(struct ub_ctx* ctx, int async_id);
 void ub_resolve_free(struct ub_result* result);
 const char* ub_strerror(int err);
@@ -50,6 +59,100 @@ int ub_ctx_zone_add(struct ub_ctx* ctx, char *zone_name, char *zone_type);
 int ub_ctx_zone_remove(struct ub_ctx* ctx, char *zone_name);
 int ub_ctx_data_add(struct ub_ctx* ctx, char *data);
 int ub_ctx_data_remove(struct ub_ctx* ctx, char *data);
-]]
+const char* ub_version(void);
+]];
+local unbound = { _LIBVER = ffi.string(libunbound.ub_version()), _LIB = libunbound };
+local context = {};
+local context_mt = { __index = context };
 
-return unbound
+function unbound.new(config)
+	local self = setmetatable(config or {}, context_mt);
+	local function callback(_, err, result)
+		local answer;
+		if err == 0 and result[0].havedata then
+			local result = result[0];
+			answer = {
+				qname = ffi.string(result.qname),
+				qclass = result.qclass,
+				qtype = result.qtype;
+				rcode = result.rcode;
+				secure = result.secure == 1;
+				bogus = result.bogus == 1 and ffi.string(result.why_bogus) or nil;
+			}
+			local i = 0;
+			while result.len[i] > 0 do
+				local data = ffi.string(result.data[i], result.len[i]);
+				i = i + 1;
+				answer[i] = data;
+			end
+		end
+		libunbound.ub_resolve_free(result);
+		if answer and self.callback then
+			self:callback(answer);
+		end
+	end
+	self._callback = ffi.cast("ub_callback_t", callback);
+	-- IIRC there was something about these not being garbagecollected properly
+	self:reset();
+	return self;
+end
+
+function context:reset()
+	self._ctx = ffi.gc(libunbound.ub_ctx_create(), libunbound.ub_ctx_delete);
+	if self.resolvconf then
+		self:set_resolvconf();
+	end
+	if self.hoststxt then
+		self:set_hosts();
+	end
+	if self.trusted then
+		self:trust()
+	end
+end
+
+function context:getfd()
+	return libunbound.ub_fd(self._ctx);
+end
+
+function context:set_resolvconf(resolvconf)
+	self.resolvconf = resolvconf or self.resolvconf;
+	libunbound.ub_ctx_resolvconf(self._ctx, tochar(self.resolvconf));
+end
+
+function context:set_hosts(hoststxt)
+	self.hoststxt = hoststxt or self.hoststxt;
+	libunbound.ub_ctx_hosts(self._ctx, tochar(self.hoststxt));
+end
+
+function context:trust(anchor)
+	if anchor then
+		libunbound.ub_ctx_add_ta(self._ctx, tochar(anchor));
+		if self.trusted then
+			self.trusted[#self.trusted+1] = anchor;
+		else
+			self.trusted = { anchor };
+		end
+	elseif self.trusted then
+		for i=1,#self.trusted do
+			libunbound.ub_ctx_add_ta(self._ctx, tochar(self.trusted[i]));
+		end
+	end
+end
+
+function context:lookup(n, t, c)
+	local ok = libunbound.ub_resolve_async(self._ctx, tochar(n), t, c, nil, self._callback, nil);
+	if ok ~= 0 then
+		return nil, ffi.string(libunbound.ub_strerror(ok));
+	end
+	return true;
+end
+
+function context:process()
+	libunbound.ub_process(self._ctx);
+end
+
+function context_mt:__gc()
+	self._callback:free();
+end
+
+return unbound;

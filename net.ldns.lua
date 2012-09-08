@@ -1,81 +1,44 @@
--- libunbound binding by Kim Alvefur
+-- libunbound based net.adns replacement for Prosody IM
+-- Copyright (c) 2012 Kim Alvefur
+-- MIT yada yada FIXME
 
-local rawget, rawset = rawget, rawset;
 local setmetatable = setmetatable;
 local t_insert = table.insert;
 local t_concat = table.concat;
+local noop = function() end;
 
 local log = require "util.logger".init("ldns");
 local config = require "core.configmanager";
-local resolvconf = config.get("*", "resolvconf");
-local hoststxt = config.get("*", "hoststxt");
 
 local gettime = require"socket".gettime;
 local dns_utils = require"util.dns";
 local classes, types, errors = dns_utils.classes, dns_utils.types, dns_utils.errors;
 local parsers = dns_utils.parsers;
 
--- FFI setup
-local ffi = require "ffi";
-local char = ffi.new("char *");
-local function tochar(s)
-	return ffi.cast(char, s);
-end
-
-local unbound = require"lib.unbound";
-local ctx = unbound.ub_ctx_create();
-local ub_fd = unbound.ub_fd(ctx);
-
-unbound.ub_ctx_add_ta(ctx, tochar(". IN DS 19036 8 2 "
-	.."49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"));
-
-if resolvconf then
-	unbound.ub_ctx_resolvconf(ctx, tochar(resolvconf));
-end
-if hoststxt then
-	unbound.ub_ctx_hosts(ctx, tochar(hoststxt));
-end
-
-local function nuke()
-	if ctx then
-		unbound.ub_ctx_delete(ctx);
-		ctx = nil;
-		ub_fd = nil;
-		unbound = nil;
-	end
-end
-
-if prosody then
-	prosody.events.add_handler("server-stopped", nuke);
-end
-
-local callbacks = setmetatable({}, {
-	__index = function(t,n)
-		local nt = {};
-		rawset(t,n,nt);
-		return nt;
-	end
-});
+local unbound = require"unbound".new {
+	trusted = { [[. IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5]] };
+	resolvconf = config.get("*", "resolvconf");
+	hoststxt = config.get("*", "hoststxt");
+};
+-- Note: libunbound will default to using root hints if resolvconf is unset
 
 local function process()
-	unbound.ub_process(ctx);
+	unbound:process();
 end
 
-local noop = function() end;
-
-local ub_listener = {
+local listener = {
 	onincoming = process,
-	ondisconnect = nuke,
 
+	ondisconnect = noop,
 	receive = noop,
 	onconnect = noop,
 	ondrain = noop,
 	onstatus = noop,
 };
 
-local ub_conn = {
+local conn = {
 	getfd = function()
-		return ub_fd;
+		return unbound:getfd();
 	end,
 
 	send = noop,
@@ -88,10 +51,10 @@ local ub_conn = {
 
 local server = require "net.server";
 if server.event and server.addevent then
-	error("libevent doesnt't appear to be working correctly yet"); -- FIXME
+	error("libevent support is still on the TODO");
 	--server.addevent(ub_fd, server.event.EV_READ + server.event.EV_TIMEOUT, process, 5);
 elseif server.wrapclient then
-	server.wrapclient(ub_conn, "dns", 0, ub_listener, "*a" );
+	server.wrapclient(conn, "dns", 0, listener, "*a" );
 end
 
 local answer_mt = {
@@ -104,62 +67,52 @@ local answer_mt = {
 		end
 		local t = { h };
 		for i=1,#self do
-			t[i+1]=tostring(v);
+			t[i+1]=tostring(self[i]);
 		end
 		return t_concat(t, "\n");
 	end,
 };
 
-local handle_answer = ffi.cast("ub_callback_t", function(_, err, result)
-	if err == 0 and result[0].havedata then
-		local gotdataat = gettime();
-		local result = result[0];
-		local qname, qclass, qtype = ffi.string(result.qname), classes[result.qclass], types[result.qtype];
-		local q = qname.." "..qclass.." "..qtype;
-		local a = {
-			name = qname,
-			type = qtype,
-			class = qclass,
-			rcode = result.rcode;
-			status = errors[result.rcode];
-			secure = result.secure == 1;
-			bogus = result.bogus == 1 and ffi.string(result.why_bogus) or nil;
-		};
-
-		local qtype_ = qtype:lower();
-		local i = 0;
-		while result.len[i] > 0 do
-			local len = result.len[i];
-			local data = ffi.string(result.data[i], len);
-			i = i + 1;
-
-			local parsed = parsers[qtype](data);
-			local rr = {
-				[qtype_] = parsed;
-			};
-			if parsed then 
-				local s = q .. " " .. tostring(parsed);
-				setmetatable(rr, {__tostring=function()return s; end}); -- What could possibly go wrong?
-			end
-			a[i] = rr;
-		end
-		setmetatable(a, answer_mt);
-
-		local cbs
-		cbs, callbacks[q] = callbacks[q], nil;
-
-		log("debug", "Results for %s: %s (%s, %f sec)", q, a.rcode == 0 and (#a .. " items") or a.status[2],
-		a.secure and "Secure" or a.bogus or "Insecure", gotdataat - cbs.t);
-
-		if #a == 0 then
-			a=nil -- COMPAT
-		end
-		for i = 1, #cbs do
-			cbs[i](a);
-		end
+local callbacks = setmetatable({}, {
+	__index = function(t,n)
+		local nt = {};
+		t[n]=nt;
+		return nt;
 	end
-	return unbound.ub_resolve_free(result);
-end);
+});
+
+function unbound:callback(a)
+	local gotdataat = gettime();
+	local status = errors[a.rcode];
+	local qclass = classes[a.qclass];
+	local qtype = types[a.qtype];
+	a.status, a.class, a.type = status, qclass, qtype;
+	local q = a.qname .. " " .. qclass .. " " .. qtype;
+
+	local t = qtype:lower();
+	local rr_mt = {__index=a,__tostring=function(self) return tostring(self[t]) end};
+	for i=1, #a do
+		a[i] = setmetatable({
+			[t] = parsers[qtype](a[i]);
+		}, rr_mt);
+	end
+	setmetatable(a, answer_mt);
+
+	local cbs;
+	cbs, callbacks[q] = callbacks[q], nil;
+
+	log("debug", "Results for %s: %s (%s, %f sec)", q, a.rcode == 0 and (#a .. " items") or a.status[2],
+		a.secure and "Secure" or a.bogus or "Insecure", gotdataat - cbs.t); -- Insecure as in unsigned
+
+	--[[
+	if #a == 0 then
+		a=nil -- COMPAT
+	end
+	--]]
+	for i = 1, #cbs do
+		cbs[i](a);
+	end
+end
 
 local function lookup(callback, qname, qtype, qclass)
 	qtype = qtype and qtype:upper() or "A";
@@ -174,16 +127,20 @@ local function lookup(callback, qname, qtype, qclass)
 	local n = #qcb;
 	t_insert(qcb, callback);
 	if n == 0 then
-		log("debug", "Resolve %s",q);
-		local ok = unbound.ub_resolve_async(ctx, tochar(qname),
-			ntype, nclass, nil, handle_answer, nil);
-		if ok ~= 0 then
-			log("warn", "Something went wrong, %s", ffi.string(unbound.ub_strerror(ok)));
+		log("debug", "Resolve %s", q);
+		local ok, err = unbound:lookup(qname, ntype, nclass);
+		if not ok then
+			log("warn", "Something went wrong, %s", err);
 		end
 	else
 		log("debug", "Already %d waiting callbacks for %s", n, q);
 	end
 end
 
+-- Reinitiate libunbound context, drops cache
+local function purge()
+	return unbound:reset();
+end
+
 -- Public API
-return { lookup = lookup, peek = noop, settimeout = noop, pulse = process };
+return { lookup = lookup, peek = noop, settimeout = noop, pulse = process, purge = purge };
