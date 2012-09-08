@@ -15,7 +15,7 @@ local dns_utils = require"util.dns";
 local classes, types, errors = dns_utils.classes, dns_utils.types, dns_utils.errors;
 local parsers = dns_utils.parsers;
 
-local unbound = require"unbound".new {
+local unbound = require"lib.unbound".new {
 	trusted = { [[. IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5]] };
 	resolvconf = config.get("*", "resolvconf");
 	hoststxt = config.get("*", "hoststxt");
