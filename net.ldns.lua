@@ -1,6 +1,7 @@
 -- libunbound based net.adns replacement for Prosody IM
 -- Copyright (c) 2012 Kim Alvefur
--- MIT yada yada FIXME
+--
+-- This file is MIT/X11 licensed.
 
 local setmetatable = setmetatable;
 local t_insert = table.insert;

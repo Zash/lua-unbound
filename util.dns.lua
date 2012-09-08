@@ -1,3 +1,9 @@
+-- libunbound based net.adns replacement for Prosody IM
+-- Copyright (c) 2012 Kim Alvefur
+-- Copyright (c) 2012 Waqas Hussain
+--
+-- This file is MIT/X11 licensed.
+
 local pairs = pairs;
 local setmetatable = setmetatable;
 local table = table;
