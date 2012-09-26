@@ -52,8 +52,12 @@ local conn = {
 
 local server = require "net.server";
 if server.event and server.addevent then
-	error("libevent support is still on the TODO");
-	--server.addevent(ub_fd, server.event.EV_READ + server.event.EV_TIMEOUT, process, 5);
+	local EV_READ = server.event.EV_READ;
+	local function cb()
+		unbound:process();
+		return EV_READ;
+	end
+	unbound._leh = server.addevent(unbound:getfd(), EV_READ, cb)
 elseif server.wrapclient then
 	server.wrapclient(conn, "dns", 0, listener, "*a" );
 end
