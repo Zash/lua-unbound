@@ -24,7 +24,7 @@ resolvconf = "/etc/resolv.conf"
 hoststxt = "/etc/hosts"
 
 3. Then start Prosody in LuaJIT. (How to do this is left as an exercise.)
-4. If you have debug logging enabled, you should see logs from 'ldns' about lookups performed.
+4. If you have debug logging enabled, you should see logs from 'unbound' about lookups performed.
 
 Configuration:
 * resolvconf - string, filename

@@ -100,6 +100,9 @@ end
 
 function context:reset()
 	self._ctx = ffi.gc(libunbound.ub_ctx_create(), libunbound.ub_ctx_delete);
+	if self.async ~= nil then
+		libunbound.ub_ctx_async(self._ctx, self.async);
+	end
 	if self.resolvconf then
 		self:set_resolvconf();
 	end
@@ -145,7 +148,7 @@ function context:lookup(n, t, c)
 	if ok ~= 0 then
 		return nil, ffi.string(libunbound.ub_strerror(ok));
 	end
-	return true;
+	return ok;
 end
 
 function context:process()
