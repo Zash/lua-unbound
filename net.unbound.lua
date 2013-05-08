@@ -133,6 +133,10 @@ local function lookup(callback, qname, qtype, qclass)
 	if not ntype or not nclass then
 		return nil, "Invalid type or class"
 	end
+	if qname:find("..", 1, true) then
+		callback();
+		return nil, "invalid qname";
+	end
 	local q = qname.." "..qclass.." "..qtype;
 	local qcb = callbacks[q];
 	qcb.t = qcb.t or gettime();
