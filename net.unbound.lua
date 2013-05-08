@@ -102,9 +102,10 @@ function unbound:callback(a)
 
 	local t = s_lower(qtype);
 	local rr_mt = { __index = a, __tostring = function(self) return tostring(self[t]) end };
+	local parser = parsers[qtype];
 	for i=1, #a do
 		a[i] = setmetatable({
-			[t] = parsers[qtype](a[i]);
+			[t] = parser(a[i]);
 		}, rr_mt);
 	end
 	setmetatable(a, answer_mt);
