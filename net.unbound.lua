@@ -81,7 +81,7 @@ local answer_mt = {
 		end
 		local t = { h };
 		for i=1,#self do
-			t[i+1]=tostring(self[i]);
+			t[i+1]=self.qname.."\t"..classes[self.qclass].."\t"..types[self.qtype].."\t"..tostring(self[i]);
 		end
 		local _string = t_concat(t, "\n");
 		self._string = _string;
