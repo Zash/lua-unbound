@@ -14,6 +14,7 @@ local noop = function() end;
 
 local log = require "util.logger".init("unbound");
 local config = require "core.configmanager";
+local server = require "net.server";
 
 local gettime = require"socket".gettime;
 local dns_utils = require"util.dns";
@@ -28,42 +29,46 @@ local unbound = require"lib.unbound".new {
 };
 -- Note: libunbound will default to using root hints if resolvconf is unset
 
-local server = require "net.server";
-if server.event and server.addevent then
-	local EV_READ = server.event.EV_READ;
-	local function event_callback()
-		unbound:process();
-		return EV_READ;
+
+local function connect_server(unbound, server)
+	if server.event and server.addevent then
+		local EV_READ = server.event.EV_READ;
+		local function event_callback()
+			unbound:process();
+			return EV_READ;
+		end
+		unbound._leh = server.addevent(unbound:getfd(), EV_READ, event_callback)
+	elseif server.wrapclient then
+		local conn = {
+			getfd = function()
+				return unbound:getfd();
+			end,
+
+			send = noop,
+			close = noop,
+			dirty = noop,
+			receive = noop,
+			settimeout = noop,
+			shutdown = noop,
+		}
+
+		local function process()
+			unbound:process();
+		end
+		local listener = {
+			onincoming = process,
+
+			ondisconnect = noop,
+			receive = noop,
+			onconnect = noop,
+			ondrain = noop,
+			onstatus = noop,
+		};
+		unbound._leh = server.wrapclient(conn, "dns", 0, listener, "*a" );
 	end
-	unbound._leh = server.addevent(unbound:getfd(), EV_READ, event_callback)
-elseif server.wrapclient then
-	local conn = {
-		getfd = function()
-			return unbound:getfd();
-		end,
-
-		send = noop,
-		close = noop,
-		dirty = noop,
-		receive = noop,
-		settimeout = noop,
-		shutdown = noop,
-	}
-
-	local function process()
-		unbound:process();
-	end
-	local listener = {
-		onincoming = process,
-
-		ondisconnect = noop,
-		receive = noop,
-		onconnect = noop,
-		ondrain = noop,
-		onstatus = noop,
-	};
-	unbound._leh = server.wrapclient(conn, "dns", 0, listener, "*a" );
 end
+
+connect_server(unbound, server);
 
 local answer_mt = {
 	__tostring = function(self)
@@ -158,11 +163,11 @@ end
 
 -- Reinitiate libunbound context, drops cache
 local function purge()
-	error "Not working correctly yet"
-	unbound:reset();
 	if unbound._leh then
-		unbound._leh = server.addevent(unbound:getfd(), EV_READ, event_callback)
+		unbound._leh:close();
 	end
+	unbound:reset();
+	connect_server(unbound, server);
 	local oldcb = callbacks;
 	callbacks = setmetatable({}, getmetatable(oldcb));
 	setmetatable(oldcb, nil);
