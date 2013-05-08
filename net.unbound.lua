@@ -104,6 +104,8 @@ function unbound:callback(a)
 	local rr_mt = { __index = a, __tostring = function(self) return tostring(self[t]) end };
 	local parser = parsers[qtype];
 	for i=1, #a do
+		local rr = parser(a[i]);
+		-- setmetatable(rr, rr_mt);
 		a[i] = setmetatable({
 			[t] = parser(a[i]);
 		}, rr_mt);
@@ -172,11 +174,22 @@ local function purge()
 	return true;
 end
 
+local function not_implemented()
+	error "not implemented";
+end
 -- Public API
 return {
 	lookup = lookup,
-	peek = noop,
-	settimeout = noop,
-	pulse = process,
-	purge = purge,
+	cancel = not_implemented;
+	new_async_socket = not_implemented;
+	dns = {
+		cancel = noop;
+		cache = noop;
+		socket_wrapper_set = noop;
+		settimeout = noop;
+		query = noop;
+		purge = purge;
+		random = noop;
+		peek = noop;
+	};
 };

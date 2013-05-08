@@ -1,3 +1,2 @@
-local function noop() end
-return { lookup = noop, peek = noop, settimeout = noop, }
+return require"net.adns".dns;
 
