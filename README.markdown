@@ -3,8 +3,7 @@ libunbound for Prosody
 
 This file replaces Prosodys internal DNS library with a LuaJIT FFI binding to
 libunbound.  It was mostly created as an experiment to see if it was possible,
-and to play with LuaJIT and its FFI.  Note that you need LuaJIT 2 (beta10 is
-the latest as of this writing).
+and to play with LuaJIT and its FFI.  Note that you need LuaJIT 2.
 
 With version 2, `lib.unbound.lua` should work as a standalone library.  Note that
 you still need to parse the RR data yourself.
