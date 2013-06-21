@@ -144,7 +144,7 @@ local function lookup(callback, qname, qtype, qclass)
 	if not ntype or not nclass then
 		return nil, "Invalid type or class"
 	end
-	if qname:find("..", 1, true) then
+	if not qname or #qname <= 1 or qname:find("..", 1, true) then
 		callback();
 		return nil, "invalid qname";
 	end
