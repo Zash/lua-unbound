@@ -206,7 +206,7 @@ end
 
 local fallback_mt = {
 	__tostring = function(t)
-		return = s_format([[\# %d %s]], #t.raw, s_gsub(t.raw, ".", tohex));
+		return s_format([[\# %d %s]], #t.raw, s_gsub(t.raw, ".", tohex));
 	end;
 };
 local function fallback_parser(packet)
