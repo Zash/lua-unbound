@@ -206,7 +206,7 @@ end
 
 local fallback_mt = {
 	__tostring = function(t)
-		return s_gsub(t.raw, "[^!-~]", function(c) return s_format("\\%03d", s_byte(c)) end);
+		return = s_format([[\# %d %s]], #t.raw, s_gsub(t.raw, ".", tohex));
 	end;
 };
 local function fallback_parser(packet)
