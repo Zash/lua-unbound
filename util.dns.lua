@@ -91,15 +91,15 @@ function parsers.SOA(packet)
 	local mname, offset = readDnsName(packet, 1);
 	local rname, offset = readDnsName(packet, offset);
 	local a,b,c,d;
-	a,b,c,d = s_byte(packet, offset, offset+4); offset = offset + 5;
+	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
 	local serial  = a*0x1000000 + b*0x10000 + c*0x100 + d;
-	a,b,c,d = s_byte(packet, offset, offset+4); offset = offset + 5;
+	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
 	local refresh = a*0x1000000 + b*0x10000 + c*0x100 + d;
-	a,b,c,d = s_byte(packet, offset, offset+4); offset = offset + 5;
+	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
 	local retry   = a*0x1000000 + b*0x10000 + c*0x100 + d;
-	a,b,c,d = s_byte(packet, offset, offset+4); offset = offset + 5;
+	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
 	local expire  = a*0x1000000 + b*0x10000 + c*0x100 + d;
-	a,b,c,d = s_byte(packet, offset, offset+4); offset = offset + 5;
+	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
 	local minimum = a*0x1000000 + b*0x10000 + c*0x100 + d;
 	return setmetatable({
 		mname = mname;
