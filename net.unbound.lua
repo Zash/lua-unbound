@@ -109,14 +109,15 @@ function unbound:callback(a)
 	local rr_mt = { __index = a, __tostring = function(self) return tostring(self[t]) end };
 	local parser = parsers[qtype];
 	for i=1, #a do
-		if not a.bogus then
+		if a.bogus then
+			-- Discard bogus data
+			a[i] = nil;
+		else
 			local rr = parser(a[i]);
 			-- setmetatable(rr, rr_mt);
 			a[i] = setmetatable({
 				[t] = parser(a[i]);
 			}, rr_mt);
-		else
-			a[i] = nil;
 		end
 	end
 	setmetatable(a, answer_mt);
