@@ -113,8 +113,6 @@ function unbound:callback(a)
 			-- Discard bogus data
 			a[i] = nil;
 		else
-			local rr = parser(a[i]);
-			-- setmetatable(rr, rr_mt);
 			a[i] = setmetatable({
 				[t] = parser(a[i]);
 			}, rr_mt);
