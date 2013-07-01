@@ -1,7 +1,7 @@
 libunbound for Prosody
 ======================
 
-This file replaces Prosodys internal DNS library with a LuaJIT FFI binding to
+This is a drop-in replacement for Prosodys internal DNS library with a LuaJIT FFI binding to
 libunbound.  It was mostly created as an experiment to see if it was possible,
 and to play with LuaJIT and its FFI.  Note that you need LuaJIT 2.
 
