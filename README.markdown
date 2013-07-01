@@ -15,13 +15,6 @@ This module can be used with [`mod_s2s_auth_dnssec_srv`](http://code.google.com/
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
 
-Links
------
-
-* <http://prosody.im/>
-* <http://luajit.org/>
-* <https://unbound.net/>
-
 Building
 --------
 
@@ -53,4 +46,11 @@ Configuration
 
 	Optional. Point to a file like /etc/hosts or similar. Note that XMPP servers use
 	SRV lookups first to know where to connect to.
+
+Links
+-----
+
+* <http://prosody.im/>
+* <http://luajit.org/>
+* <https://unbound.net/>
 
