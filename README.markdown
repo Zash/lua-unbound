@@ -8,6 +8,13 @@ and to play with LuaJIT and its FFI.  Note that you need LuaJIT 2.
 With version 2, `lib.unbound.lua` should work as a standalone library.  Note that
 you still need to parse the RR data yourself.
 
+Why use it
+----------
+
+This module can be used with [`mod_s2s_auth_dnssec_srv`](http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dnssec_srv>) to support secure delegation.
+
+DNS commands in the prosody telnet console will also show DNSSEC status.
+
 Links
 -----
 
@@ -46,3 +53,4 @@ Configuration
 
 	Optional. Point to a file like /etc/hosts or similar. Note that XMPP servers use
 	SRV lookups first to know where to connect to.
+
