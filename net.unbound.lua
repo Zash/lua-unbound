@@ -45,12 +45,8 @@ local function connect_server(unbound, server)
 				return unbound:getfd();
 			end,
 
-			send = noop,
-			close = noop,
-			dirty = noop,
 			receive = noop,
 			settimeout = noop,
-			shutdown = noop,
 		}
 
 		local function process()
@@ -59,11 +55,7 @@ local function connect_server(unbound, server)
 		local listener = {
 			onincoming = process,
 
-			ondisconnect = noop,
-			receive = noop,
 			onconnect = noop,
-			ondrain = noop,
-			onstatus = noop,
 		};
 		unbound._leh = server.wrapclient(conn, "dns", 0, listener, "*a" );
 	end

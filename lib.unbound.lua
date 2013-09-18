@@ -155,8 +155,4 @@ function context:process()
 	libunbound.ub_process(self._ctx);
 end
 
-function context_mt:__gc()
-	self._callback:free();
-end
-
 return unbound;
