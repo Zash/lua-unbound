@@ -11,6 +11,7 @@ local s_format = string.format;
 local s_lower = string.lower;
 local s_upper = string.upper;
 local noop = function() end;
+local zero = function() return 0 end;
 
 local log = require "util.logger".init("unbound");
 local config = require "core.configmanager";
@@ -45,6 +46,7 @@ local function connect_server(unbound, server)
 				return unbound:getfd();
 			end,
 
+			send = zero,
 			receive = noop,
 			settimeout = noop,
 		}
