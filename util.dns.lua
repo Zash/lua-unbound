@@ -183,13 +183,23 @@ end
 
 local tohex = function(c) return s_format("%02X", s_byte(c)) end
 local tlsa_usages = {
-	[0] = "CA constraint",
-	"service certificate constraint",
-	"trust anchor assertion",
-	"domain-issued certificate",
+	[0] = "PKIX-CA",
+	"PKIX-EE",
+	"DANE-TA",
+	"DANE-EE",
+	[255] = "PrivCert",
 };
-local tlsa_selectors = { [0] = "full", "SubjectPublicKeyInfo" };
-local tlsa_match_types = { [0] = "exact", "SHA-256", "SHA-512" };
+local tlsa_selectors = {
+	[0] = "Cert",
+	"SPKI",
+	[255] = "PrivSel",
+};
+local tlsa_match_types = {
+	[0] = "Full",
+	"SHA-256",
+	"SHA-512",
+	[255] = "PrivMatch",
+};
 local tlsa_mt = {
 	__tostring = function(t)
 		return s_format("%d %d %d %s", t.use, t.select, t.match, s_gsub(t.data, ".", tohex));
