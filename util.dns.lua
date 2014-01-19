@@ -196,8 +196,8 @@ local tlsa_selectors = {
 };
 local tlsa_match_types = {
 	[0] = "Full",
-	"SHA-256",
-	"SHA-512",
+	"SHA2-256",
+	"SHA2-512",
 	[255] = "PrivMatch",
 };
 local tlsa_mt = {
