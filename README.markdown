@@ -32,7 +32,7 @@ Installation
 2. In the global section of your `prosody.cfg.lua`, add the following:
 
 		RunScript "use_unbound.lua"
-    resolvconf = "/etc/resolv.conf"
+		resolvconf = "/etc/resolv.conf"
 		hoststxt = "/etc/hosts"
 
 3. Then start Prosody in LuaJIT. (How to do this is left as an exercise.)
