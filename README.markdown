@@ -54,6 +54,21 @@ Configuration
   Optional. Point to a file like /etc/hosts or similar. Note that 
   XMPP servers use SRV lookups first to know where to connect to.
 
+Modules
+-------
+
+* `net.unbound`
+
+  API-compatible with prosodys `net.adns` DNS library.
+
+* `lib.unbound`
+
+  The module that wraps libunbound with the use of LuaJITs FFI.
+
+* `util.dns`
+
+  DNS parsing library.
+
 Links
 -----
 
