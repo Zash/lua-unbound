@@ -184,20 +184,20 @@ end
 local tohex = function(c) return s_format("%02X", s_byte(c)) end
 local tlsa_usages = {
 	[0] = "PKIX-CA",
-	"PKIX-EE",
-	"DANE-TA",
-	"DANE-EE",
+	[1] = "PKIX-EE",
+	[2] = "DANE-TA",
+	[3] = "DANE-EE",
 	[255] = "PrivCert",
 };
 local tlsa_selectors = {
 	[0] = "Cert",
-	"SPKI",
+	[1] = "SPKI",
 	[255] = "PrivSel",
 };
 local tlsa_match_types = {
 	[0] = "Full",
-	"SHA2-256",
-	"SHA2-512",
+	[1] = "SHA2-256",
+	[2] = "SHA2-512",
 	[255] = "PrivMatch",
 };
 local tlsa_mt = {
