@@ -44,14 +44,14 @@ Configuration
 
 * `resolvconf` - string, filename
 
-  Optional, but recommended. Point to a file with a list of name 
-  servers to use, such as `/etc/resolv.conf`.  If left out, 
-  unbound will perform a full lookup from scratch from the DNS 
+  Optional, but recommended. Point to a file with a list of name
+  servers to use, such as `/etc/resolv.conf`.  If left out,
+  unbound will perform a full lookup from scratch from the DNS
   roots.
 
 * `hoststxt` - string, filename
 
-  Optional. Point to a file like /etc/hosts or similar. Note that 
+  Optional. Point to a file like /etc/hosts or similar. Note that
   XMPP servers use SRV lookups first to know where to connect to.
 
 Modules
