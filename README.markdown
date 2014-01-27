@@ -11,7 +11,7 @@ you still need to parse the RR data yourself.
 Why use it
 ----------
 
-This module can be used with [`mod_s2s_auth_dnssec_srv`](http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dnssec_srv>) to support secure delegation.
+This module can be used with [`mod_s2s_auth_dnssec_srv`](http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dnssec_srv>) to support secure delegation or [`mod_s2s_auth_dane`](http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane) for [DANE](http://tools.ietf.org/html/rfc6698).
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
 
