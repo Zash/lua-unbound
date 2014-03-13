@@ -20,45 +20,51 @@ if has_struct then c_unpack = c_unpack.unpack; end
 
 -- Converted from
 -- http://www.iana.org/assignments/dns-parameters
--- 2012-04-13
+-- 2014-03-13
 
-local classes = { IN=1, CH=3, HS=4, NONE=254, ANY=255, }
-for c, v in pairs(classes) do classes[v] = c; end
-
-local types = { A = 1, NS = 2, MD = 3, MF = 4, CNAME = 5, SOA = 6, MB 
-= 7, MG = 8, MR = 9, NULL = 10, WKS = 11, PTR = 12, HINFO = 13, MINFO = 
-14, MX = 15, TXT = 16, RP = 17, AFSDB = 18, X25 = 19, ISDN = 20, RT = 21, 
-NSAP = 22, ["NSAP-PTR"] = 23, SIG = 24, KEY = 25, PX = 26, GPOS = 27, 
-AAAA = 28, LOC = 29, NXT = 30, EID = 31, NIMLOC = 32, SRV = 33, ATMA = 
-34, NAPTR = 35, KX = 36, CERT = 37, A6 = 38, DNAME = 39, SINK = 40, OPT = 
-41, APL = 42, DS = 43, SSHFP = 44, IPSECKEY = 45, RRSIG = 46, NSEC = 47, 
-DNSKEY = 48, DHCID = 49, NSEC3 = 50, NSEC3PARAM = 51, TLSA = 52, HIP = 
-55, NINFO = 56, RKEY = 57, TALINK = 58, CDS = 59, SPF = 99, TKEY = 249, 
-TSIG = 250, IXFR = 251, AXFR = 252, MAILB = 253, MAILA = 254, ANY = 255, 
-URI = 256, CAA = 257, TA = 32768, DLV = 32769, }
-for c, v in pairs(types) do types[v] = c; end
-
-local errors = {};
-do
-local _errors = {
-[0] = { "NoError", "No Error" },
-{ "FormErr", "Format Error" },
-{ "ServFail", "Server Failure" },
-{ "NXDomain", "Non-Existent Domain" },
-{ "NotImp", "Not Implemented" },
-{ "Refused", "Query Refused" },
-{ "YXDomain", "Name Exists when it should not" },
-{ "YXRRSet", "RR Set Exists when it should not" },
-{ "NXRRSet", "RR Set that should exist does not" },
-{ "NotAuth", "Server Not Authoritative for zone" },
-{ "NotZone", "Name not contained in zone" },
+local classes = {
+	IN = 1; "IN";
+	nil;
+	CH = 3; "CH";
+	HS = 4; "HS";
 };
-for i=0,#_errors do
-	local short, long = _errors[i][1], _errors[i][2];
-	errors[i] = short;
-	errors[short] = long;
-end
-end
+
+local types = { "A"; "NS"; "MD"; "MF"; "CNAME"; "SOA"; "MB"; "MG"; "MR";
+"NULL"; "WKS"; "PTR"; "HINFO"; "MINFO"; "MX"; "TXT"; "RP"; "AFSDB";
+"X25"; "ISDN"; "RT"; "NSAP"; "NSAP-PTR"; "SIG"; "KEY"; "PX"; "GPOS";
+"AAAA"; "LOC"; "NXT"; "EID"; "NIMLOC"; "SRV"; "ATMA"; "NAPTR"; "KX";
+"CERT"; "A6"; "DNAME"; "SINK"; "OPT"; "APL"; "DS"; "SSHFP"; "IPSECKEY";
+"RRSIG"; "NSEC"; "DNSKEY"; "DHCID"; "NSEC3"; "NSEC3PARAM"; "TLSA";
+[55]="HIP"; [56]="NINFO"; [57]="RKEY"; [58]="TALINK"; [59]="CDS";
+TLSA=52; NS=2; [249]="TKEY"; [251]="IXFR"; NSAP=22; UID=101; APL=42;
+MG=8; NIMLOC=32; DHCID=49; TALINK=58; HINFO=13; MINFO=14; EID=31; DS=43;
+EUI48=108; RKEY=57; TKEY=249; NID=104; NAPTR=35; RT=21; LP=107; L32=105;
+KEY=25; MD=3; MX=15; A6=38; KX=36; PX=26; CAA=257; WKS=11; TSIG=250;
+MAILA=254; CDS=59; SINK=40; LOC=29; Reserved=65535; [65535]="Reserved";
+DLV=32769; [32769]="DLV"; IXFR=251; TA=32768; [32768]="TA"; [250]="TSIG";
+[252]="AXFR"; NSEC=47; HIP=55; UNSPEC=103; [256]="URI"; NSEC3PARAM=51;
+["*"]=255; URI=256; [255]="*"; [254]="MAILA"; MAILB=253; NXT=30;
+[253]="MAILB"; AXFR=252; L64=106; AFSDB=18; ISDN=20; NINFO=56; SRV=33;
+DNSKEY=48; X25=19; TXT=16; RRSIG=46; SPF=99; DNAME=39; CNAME=5;
+EUI64=109; A=1; MR=9; IPSECKEY=45; OPT=41; UINFO=100; ["NSAP-PTR"]=23;
+GID=102; [257]="CAA"; [103]="UNSPEC"; [99]="SPF"; MF=4; [101]="UID";
+[102]="GID"; SOA=6; [104]="NID"; [105]="L32"; [106]="L64"; [107]="LP";
+[108]="EUI48"; [109]="EUI64"; NSEC3=50; RP=17; PTR=12; [100]="UINFO";
+NULL=10; AAAA=28; MB=7; GPOS=27; SSHFP=44; CERT=37; SIG=24; ATMA=34; };
+
+local errors = {
+	NoError = "No Error"; [0] = "NoError";
+	FormErr = "Format Error"; "FormErr";
+	ServFail = "Server Failure"; "ServFail";
+	NXDomain = "Non-Existent Domain"; "NXDomain";
+	NotImp = "Not Implemented"; "NotImp";
+	Refused = "Query Refused"; "Refused";
+	YXDomain = "Name Exists when it should not"; "YXDomain";
+	YXRRSet = "RR Set Exists when it should not"; "YXRRSet";
+	NXRRSet = "RR Set that should exist does not"; "NXRRSet";
+	NotAuth = "Server Not Authoritative for zone"; "NotAuth";
+	NotZone = "Name not contained in zone"; "NotZone";
+};
 
 -- Simplified versions of Waqas DNS parsers
 -- Only the per RR parsers are needed and only feed a single RR
