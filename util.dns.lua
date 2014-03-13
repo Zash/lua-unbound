@@ -226,6 +226,13 @@ function parsers.TLSA(packet)
 	}, tlsa_mt);
 end
 
+local params = {
+	TLSA = {
+		use = tlsa_usages;
+		select = tlsa_selectors;
+		match = tlsa_match_types;
+	};
+};
 
 local fallback_mt = {
 	__tostring = function(t)
@@ -242,4 +249,5 @@ return {
 	classes = classes,
 	types = types,
 	errors = errors,
+	params = params,
 };
