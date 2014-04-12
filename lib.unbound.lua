@@ -143,12 +143,27 @@ function context:trust(anchor)
 	end
 end
 
+local query = { };
+local query_mt = { __index = query };
+
+function query:cancel()
+	libunbound.ub_cancel(self._ctx, self.id);
+end
+
+local query_id = ffi.new("int[1]");
 function context:lookup(n, t, c)
-	local ok = libunbound.ub_resolve_async(self._ctx, tochar(n), t, c, nil, self._callback, nil);
+	-- int ub_resolve_async(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, void* mydata, ub_callback_t callback, int* async_id);
+	local ok = libunbound.ub_resolve_async(self._ctx, tochar(n), t, c, nil, self._callback, query_id);
 	if ok ~= 0 then
 		return nil, ffi.string(libunbound.ub_strerror(ok));
 	end
-	return ok;
+	return setmetatable({
+		_ctx = self._ctx;
+		qname = n;
+		qtype = t;
+		qclass = c;
+		id = query_id[0];
+	}, query_mt);
 end
 
 function context:process()
