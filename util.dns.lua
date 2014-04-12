@@ -208,7 +208,7 @@ local tlsa_match_types = {
 };
 local tlsa_mt = {
 	__tostring = function(t)
-		return s_format("%d %d %d %s", t.use, t.select, t.match, s_gsub(t.data, ".", tohex));
+		return s_format("%s %s %s %s", tlsa_usages[t.use] or t.use, tlsa_selectors[t.select] or t.select, tlsa_match_types[t.match] or t.match, s_gsub(t.data, ".", tohex));
 	end;
 	__index = {
 		getUsage = function(t) return tlsa_usages[t.use] end;
