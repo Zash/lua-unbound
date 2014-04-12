@@ -72,9 +72,9 @@ local parsers = {};
 -- No support for pointers, but libunbound appears to take care of that.
 local function readDnsName(packet, pos)
 	local pack_len = #packet;
-	local r, pos = {}, pos or 1;
+	local r, pos, len = {}, pos or 1;
 	repeat
-		local len = s_byte(packet, pos) or 0;
+		len = s_byte(packet, pos) or 0;
 		t_insert(r, s_sub(packet, pos + 1, pos + len));
 		pos = pos + len + 1;
 	until len == 0 or pos >= pack_len;
@@ -128,19 +128,19 @@ function parsers.A(packet)
 	return a.."."..b.."."..c.."."..d;
 end
 
+local t = { nil, nil, nil, nil, nil, nil, nil, nil, };
 function parsers.AAAA(packet)
-		local t = { nil, nil, nil, nil, nil, nil, nil, nil, };
-		for i=1,8 do
-			local hi, lo = s_byte(packet, i*2-1, i*2);
-			t[i] = s_format("%x", hi*256+lo); -- skips leading zeros
-		end
-		local ip = t_concat(t, ":", 1, 8);
-		local len = #s_match(ip, "^[0:]*");
-		local token;
-		for s in s_gmatch(ip, ":[0:]+") do
-			if len < #s then len,token = #s,s; end -- find longest sequence of zeros
-		end
-		return s_gsub(ip, token or "^[0:]+", "::", 1);
+	local hi, lo, ip, len, token;
+	for i=1,8 do
+		hi, lo = s_byte(packet, i*2-1, i*2);
+		t[i] = s_format("%x", hi*256+lo); -- skips leading zeros
+	end
+	ip = t_concat(t, ":", 1, 8);
+	len = (s_match(ip, "^0:[0:]+()") or 1) - 1;
+	for s in s_gmatch(ip, ":0:[0:]+") do
+		if len < #s then len,token = #s,s; end -- find longest sequence of zeros
+	end
+	return s_gsub(ip, token or "^0:[0:]+", "::", 1);
 end
 
 local mx_mt = {
@@ -176,9 +176,9 @@ end
 local txt_mt = { __tostring = t_concat };
 function parsers.TXT(packet, pos)
 	local pack_len = #packet;
-	local r, pos = {}, 1;
+	local r, pos, len = {}, 1;
 	repeat
-		local len = s_byte(packet, pos) or 0;
+		len = s_byte(packet, pos) or 0;
 		t_insert(r, s_sub(packet, pos + 1, pos + len));
 		pos = pos + len + 1;
 	until pos >= pack_len;
