@@ -6,6 +6,7 @@
 local setmetatable = setmetatable;
 local tostring = tostring;
 local t_insert = table.insert;
+local t_remove = table.remove;
 local t_concat = table.concat;
 local s_format = string.format;
 local s_lower = string.lower;
@@ -154,10 +155,19 @@ local function lookup(callback, qname, qtype, qclass)
 		if not ok then
 			log("warn", "Something went wrong, %s", err);
 		end
+		qcb.q = ok;
 	else
 		log("debug", "Already %d waiting callbacks for %s", n, q);
 	end
-	return true;
+	return {
+		cb = callback,
+		qname = qname,
+		qtype = qtype,
+		qclass = qclass,
+		q = q,
+		qcb = qcb,
+		n = n +1;
+	};
 end
 
 -- Reinitiate libunbound context, drops cache
@@ -178,16 +188,26 @@ local function purge()
 	return true;
 end
 
+local function cancel(query)
+	local qcb, n = query.qcb, query.n;
+	local ok = t_remove(qcb, n);
+	if not ok then return false end
+	if #qcb == 0 then
+		query.q:cancel();
+	end
+	return true;
+end
+
 local function not_implemented()
 	error "not implemented";
 end
 -- Public API
 return {
 	lookup = lookup,
-	cancel = not_implemented;
+	cancel = cancel;
 	new_async_socket = not_implemented;
 	dns = {
-		cancel = noop;
+		cancel = cancel;
 		cache = noop;
 		socket_wrapper_set = noop;
 		settimeout = noop;
