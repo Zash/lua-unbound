@@ -15,8 +15,6 @@ local s_gsub = string.gsub;
 local s_sub = string.sub;
 local s_match = string.match;
 local s_gmatch = string.gmatch;
-local has_struct, c_unpack = pcall(require, "struct");
-if has_struct then c_unpack = c_unpack.unpack; end
 
 -- Converted from
 -- http://www.iana.org/assignments/dns-parameters
