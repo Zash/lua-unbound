@@ -4,7 +4,6 @@
 --
 -- This file is MIT/X11 licensed.
 
-local pairs = pairs;
 local setmetatable = setmetatable;
 local table = table;
 local t_concat = table.concat;
@@ -173,7 +172,7 @@ function parsers.SRV(packet)
 end
 
 local txt_mt = { __tostring = t_concat };
-function parsers.TXT(packet, pos)
+function parsers.TXT(packet)
 	local pack_len = #packet;
 	local r, pos, len = {}, 1;
 	repeat
