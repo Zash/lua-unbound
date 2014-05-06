@@ -13,6 +13,7 @@ local s_lower = string.lower;
 local s_upper = string.upper;
 local noop = function() end;
 local zero = function() return 0 end;
+local truop = function() return true; end;
 
 local log = require "util.logger".init("unbound");
 local config = require "core.configmanager";
@@ -60,6 +61,8 @@ local function connect_server(unbound, server)
 			onincoming = process,
 
 			onconnect = noop,
+			ondisconnect = noop,
+			onreadtimeout = truop,
 		};
 		unbound._leh = server.wrapclient(conn, "dns", 0, listener, "*a" );
 	end
@@ -125,7 +128,7 @@ function unbound:callback(a)
 
 	--[[
 	if #a == 0 then
-		a=nil -- COMPAT Older prosody expected nil instead of table with error 
+		a=nil -- COMPAT Older prosody expected nil instead of table with error
 	end
 	--]]
 	for i = 1, #cbs do
