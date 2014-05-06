@@ -186,6 +186,7 @@ function parsers.TXT(packet, pos)
 end
 
 local tohex = function(c) return s_format("%02X", s_byte(c)) end
+-- Acronyms from RFC 7218
 local tlsa_usages = {
 	[0] = "PKIX-CA",
 	[1] = "PKIX-EE",
