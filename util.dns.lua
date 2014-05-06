@@ -124,8 +124,7 @@ function parsers.SOA(packet)
 end
 
 function parsers.A(packet)
-	local a,b,c,d = s_byte(packet, 1, 4);
-	return a.."."..b.."."..c.."."..d;
+	return s_format("%d.%d.%d.%d", s_byte(packet, 1, 4));
 end
 
 local t = { nil, nil, nil, nil, nil, nil, nil, nil, };
