@@ -218,6 +218,9 @@ return {
 		purge = purge;
 		random = noop;
 		peek = noop;
+
+		types = types;
+		classes = classes;
 	};
 };
 
