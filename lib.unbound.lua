@@ -169,5 +169,6 @@ end
 function context:process()
 	libunbound.ub_process(self._ctx);
 end
+jit.off(context.process)
 
 return unbound;
