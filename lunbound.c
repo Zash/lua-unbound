@@ -139,6 +139,19 @@ static int lub_resolve_async(lua_State* L) {
 	return 1;
 }
 
+static int lub_cancel(lua_State* L) {
+	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
+	int async_id = luaL_checkint(L, 2);
+	int ret = ub_cancel(*ctx, async_id);
+	if(ret != 0) {
+		lua_pushnil(L);
+		lua_pushstring(L, ub_strerror(ret));
+		return 2;
+	}
+	lua_pushinteger(L, async_id);
+	return 1;
+}
+
 static int lub_process(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_checkstack(L, 10);
@@ -167,6 +180,7 @@ static luaL_Reg ctx_methods[] = {
 	{"getfd", lub_ctx_getfd},
 	{"resolve", lub_resolve},
 	{"resolve_async", lub_resolve_async},
+	{"cancel", lub_cancel},
 	{"process", lub_process},
 	{"wait", lub_wait},
 	{"poll", lub_poll},
