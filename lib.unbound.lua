@@ -69,20 +69,18 @@ local context_mt = { __index = context };
 local function parse_result(err, result)
 	local answer;
 	if err == 0 and result[0].havedata then
-		local result = result[0];
 		answer = {
-			qname = ffi.string(result.qname),
-			qclass = result.qclass,
-			qtype = result.qtype;
-			rcode = result.rcode;
-			secure = result.secure == 1;
-			bogus = result.bogus == 1 and ffi.string(result.why_bogus) or nil;
+			qname  = ffi.string(result[0].qname);
+			qtype  = result[0].qtype;
+			qclass = result[0].qclass;
+			rcode  = result[0].rcode;
+			secure = result[0].secure == 1;
+			bogus  = result[0].bogus == 1 and ffi.string(result[0].why_bogus) or nil;
 		}
-		local i = 0;
-		while result.len[i] > 0 do
-			local data = ffi.string(result.data[i], result.len[i]);
-			i = i + 1;
-			answer[i] = data;
+		local i, data = 0;
+		while result[0].len[i] > 0 do
+			data = ffi.string(result[0].data[i], result[0].len[i]);
+			i = i + 1; answer[i]  = data;
 		end
 	end
 	return answer;
