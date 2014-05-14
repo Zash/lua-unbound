@@ -133,6 +133,7 @@ static int lub_resolve_async(lua_State* L) {
 	if(ret != 0) {
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
+		return 2;
 	}
 	lua_pushinteger(L, async_id);
 	return 1;
