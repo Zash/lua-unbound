@@ -94,53 +94,27 @@ function unbound.new(config)
 	end
 	self._callback = ffi.cast("ub_callback_t", callback);
 	-- IIRC there was something about these not being garbagecollected properly
-	self:reset();
-	return self;
-end
 
-function context:reset()
 	self._ctx = ffi.gc(libunbound.ub_ctx_create(), libunbound.ub_ctx_delete);
+
 	if self.async ~= nil then
 		libunbound.ub_ctx_async(self._ctx, self.async);
 	end
 	if self.resolvconf then
-		self:set_resolvconf();
+		libunbound.ub_ctx_resolvconf(self._ctx, tochar(self.resolvconf));
 	end
 	if self.hoststxt then
-		self:set_hosts();
+		libunbound.ub_ctx_hosts(self._ctx, tochar(self.hoststxt));
 	end
 	if self.trusted then
-		self:trust()
+		for i=1,#self.trusted do
+			libunbound.ub_ctx_add_ta(self._ctx, tochar(self.trusted[i]));
+		end
 	end
 end
 
 function context:getfd()
 	return libunbound.ub_fd(self._ctx);
-end
-
-function context:set_resolvconf(resolvconf)
-	self.resolvconf = resolvconf or self.resolvconf;
-	libunbound.ub_ctx_resolvconf(self._ctx, tochar(self.resolvconf));
-end
-
-function context:set_hosts(hoststxt)
-	self.hoststxt = hoststxt or self.hoststxt;
-	libunbound.ub_ctx_hosts(self._ctx, tochar(self.hoststxt));
-end
-
-function context:trust(anchor)
-	if anchor then
-		libunbound.ub_ctx_add_ta(self._ctx, tochar(anchor));
-		if self.trusted then
-			self.trusted[#self.trusted+1] = anchor;
-		else
-			self.trusted = { anchor };
-		end
-	elseif self.trusted then
-		for i=1,#self.trusted do
-			libunbound.ub_ctx_add_ta(self._ctx, tochar(self.trusted[i]));
-		end
-	end
 end
 
 local query = { };
