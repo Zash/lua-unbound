@@ -18,13 +18,14 @@ local truop = function() return true; end;
 local log = require "util.logger".init("unbound");
 local config = require "core.configmanager";
 local server = require "net.server";
+local libunbound = require"lib.unbound";
 
 local gettime = require"socket".gettime;
 local dns_utils = require"util.dns";
 local classes, types, errors = dns_utils.classes, dns_utils.types, dns_utils.errors;
 local parsers = dns_utils.parsers;
 
-local unbound = require"lib.unbound".new {
+local unbound_config = {
 	-- https://data.iana.org/root-anchors/root-anchors.xml
 	trusted = config.get("*", "unbound_ta") or
 		{ [[. IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5]] };
@@ -34,6 +35,7 @@ local unbound = require"lib.unbound".new {
 };
 -- Note: libunbound will default to using root hints if resolvconf is unset
 
+local unbound = libunbound.new(unbound_config);
 
 local function connect_server(unbound, server)
 	if server.event and server.addevent then
@@ -42,7 +44,7 @@ local function connect_server(unbound, server)
 			unbound:process();
 			return EV_READ;
 		end
-		unbound._leh = server.addevent(unbound:getfd(), EV_READ, event_callback)
+		return server.addevent(unbound:getfd(), EV_READ, event_callback)
 	elseif server.wrapclient then
 		local conn = {
 			getfd = function()
@@ -64,11 +66,11 @@ local function connect_server(unbound, server)
 			ondisconnect = noop,
 			onreadtimeout = truop,
 		};
-		unbound._leh = server.wrapclient(conn, "dns", 0, listener, "*a" );
+		return server.wrapclient(conn, "dns", 0, listener, "*a" );
 	end
 end
 
-connect_server(unbound, server);
+local server_conn = connect_server(unbound, server);
 
 local answer_mt = {
 	__tostring = function(self)
@@ -175,11 +177,11 @@ end
 
 -- Reinitiate libunbound context, drops cache
 local function purge()
-	if unbound._leh then
-		unbound._leh:close();
+	if server_conn then
+		server_conn:close();
 	end
-	unbound:reset();
-	connect_server(unbound, server);
+	unbound = libunbound.new(unbound_config);
+	server_conn = connect_server(unbound, server);
 	local oldcb = callbacks;
 	callbacks = setmetatable({}, getmetatable(oldcb));
 	setmetatable(oldcb, nil);
