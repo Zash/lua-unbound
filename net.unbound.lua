@@ -99,7 +99,7 @@ local callbacks = setmetatable({}, {
 	end
 });
 
-function unbound:callback(a)
+local function ub_callback(a)
 	local gotdataat = gettime();
 	local status = errors[a.rcode];
 	local qclass = classes[a.qclass];
@@ -156,7 +156,7 @@ local function lookup(callback, qname, qtype, qclass)
 	t_insert(qcb, callback);
 	if n == 0 then
 		log("debug", "Resolve %s", q);
-		local ok, err = unbound:lookup(qname, ntype, nclass);
+		local ok, err = unbound:resolve_async(ub_callback, qname, ntype, nclass);
 		if not ok then
 			log("warn", "Something went wrong, %s", err);
 		end

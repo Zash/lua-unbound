@@ -64,9 +64,20 @@ const char* ub_version(void);
 ]];
 local unbound = { _LIBVER = ffi.string(libunbound.ub_version()), _LIB = libunbound };
 local context = {};
-local context_mt = { __index = context };
+local context_mt = { __index = context, __gc = libunbound.ub_ctx_delete };
+
+context.add_ta = libunbound.ub_ctx_add_ta;
+context.async = libunbound.ub_ctx_async;
+context.cancel = libunbound.ub_cancel;
+context.getfd = libunbound.ub_fd;
+context.hosts = libunbound.ub_ctx_hosts;
+context._process = libunbound.ub_process;
+context.resolvconf = libunbound.ub_ctx_resolvconf;
+context._resolve = libunbound.ub_resolve;
+context._resolve_async = libunbound.ub_resolve_async;
 
 local function parse_result(err, result)
+	ffi.gc(result, libunbound.ub_resolve_free);
 	local answer;
 	if err == 0 and result[0].havedata then
 		answer = {
@@ -83,69 +94,62 @@ local function parse_result(err, result)
 			i = i + 1; answer[i]  = data;
 		end
 	end
-	return answer;
+	return answer, libunbound.ub_strerror(err);
 end
 
 function unbound.new(config)
-	local self = setmetatable(config or {}, context_mt);
-	local function callback(_, err, result)
-		local answer = parse_result(err, result);
-		libunbound.ub_resolve_free(result);
-		if answer and self.callback then
-			self:callback(answer);
+	local ub_ctx = libunbound.ub_ctx_create();
+
+	if config.async ~= nil then
+		ub_ctx:async(config.async);
+	end
+
+	if config.resolvconf == true then
+		ub_ctx:resolvconf(nil);
+	else
+		ub_ctx:resolvconf(tochar(config.resolvconf));
+	end
+
+	if config.hoststxt == true then
+		ub_ctx:hosts(nil);
+	else
+		ub_ctx:hosts(tochar(config.hoststxt));
+	end
+
+	if config.trusted then
+		for i=1,#config.trusted do
+			ub_ctx:add_ta(tochar(config.trusted[i]));
 		end
 	end
-	self._callback = ffi.cast("ub_callback_t", callback);
-	-- IIRC there was something about these not being garbagecollected properly
 
-	self._ctx = ffi.gc(libunbound.ub_ctx_create(), libunbound.ub_ctx_delete);
-
-	if self.async ~= nil then
-		libunbound.ub_ctx_async(self._ctx, self.async);
-	end
-	if self.resolvconf then
-		libunbound.ub_ctx_resolvconf(self._ctx, tochar(self.resolvconf));
-	end
-	if self.hoststxt then
-		libunbound.ub_ctx_hosts(self._ctx, tochar(self.hoststxt));
-	end
-	if self.trusted then
-		for i=1,#self.trusted do
-			libunbound.ub_ctx_add_ta(self._ctx, tochar(self.trusted[i]));
-		end
-	end
+	return ub_ctx;
 end
 
-function context:getfd()
-	return libunbound.ub_fd(self._ctx);
+function context:resolve(name, rrtype, rrclass)
+	local result = ffi.new("struct ub_result*");
+	local ok = self:_resolve(tochar(name), rrtype, rrclass, result);
+	return parse_result(ok, result);
 end
 
-local query = { };
-local query_mt = { __index = query };
-
-function query:cancel()
-	libunbound.ub_cancel(self._ctx, self.id);
-end
-
-local query_id = ffi.new("int[1]");
-function context:lookup(n, t, c)
-	-- int ub_resolve_async(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, void* mydata, ub_callback_t callback, int* async_id);
-	local ok = libunbound.ub_resolve_async(self._ctx, tochar(n), t, c, nil, self._callback, query_id);
+function context:resolve_async(callback, name, rrtype, rrclass)
+	local query_id = ffi.new("int[1]");
+	local function l_callback(self, err, result)
+		ffi.cast("ub_callback_t", self):free();
+		callback(parse_result(err, result));
+	end
+	local ub_callback_t = ffi.cast("ub_callback_t", l_callback);
+	local	ok = self:_resolve_async(tochar(name), rrtype, rrclass, ub_callback_t, ub_callback_t, query_id);
 	if ok ~= 0 then
 		return nil, ffi.string(libunbound.ub_strerror(ok));
 	end
-	return setmetatable({
-		_ctx = self._ctx;
-		qname = n;
-		qtype = t;
-		qclass = c;
-		id = query_id[0];
-	}, query_mt);
+	return query_id[0];
 end
 
 function context:process()
-	libunbound.ub_process(self._ctx);
+	self:_process();
 end
 jit.off(context.process)
+
+unbound.ub_ctx = ffi.metatype("struct ub_ctx", context_mt);
 
 return unbound;
