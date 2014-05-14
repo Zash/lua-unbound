@@ -229,6 +229,8 @@ int luaopen_lunbound(lua_State* L) {
 
 	lua_createtable(L, 0, 1);
 	luaL_register(L, NULL, lub_lib_funcs);
+	lua_pushstring(L, ub_version());
+	lua_setfield(L, -2, "_LIBVER");
 	return 1;
 }
 
