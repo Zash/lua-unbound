@@ -8,14 +8,60 @@ typedef struct {
 } cb_data;
 
 int lub_new(lua_State* L) {
+	int ret;
+	int i = 1;
 	struct ub_ctx** ctx = lua_newuserdata(L, sizeof(struct ub_ctx*));
 	*ctx = ub_ctx_create();
-	/* TODO Settings, read from table passed to new() */
-	ub_ctx_resolvconf(*ctx, NULL);
-	ub_ctx_async(*ctx, 1);
-	ub_ctx_add_ta(*ctx, ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"); /* I know ... */
 	luaL_getmetatable(L, "ub_ctx");
 	lua_setmetatable(L, -2);
+	if(lua_istable(L, 1)) {
+		lua_pushstring(L, "async");
+		lua_gettable(L, 1);
+		ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "resolvconf");
+		lua_gettable(L, 1);
+		if(lua_isstring(L, -1))
+			ret = ub_ctx_resolvconf(*ctx, (char *)lua_tostring(L, -1));
+		else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+			ret = ub_ctx_resolvconf(*ctx, 0);
+		/* else use root hits */
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "hoststxt");
+		lua_gettable(L, 1);
+		if(lua_isstring(L, -1))
+			ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+		lua_pop(L, 1);
+
+		lua_pushstring(L, "trust");
+		lua_gettable(L, 1);
+		if(lua_istable(L, -1)) {
+			lua_rawgeti(L, -1, i++);
+			while(ret == 0 && lua_isstring(L, -1)) {
+					ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
+					lua_pop(L, 1);
+					lua_rawgeti(L, -1, i++);
+			}
+			lua_pop(L, 1);
+			luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+		}
+		else if(lua_isstring(L, -1))
+			ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
+		else if(!lua_isnil(L, -1))
+			luaL_argerror(L, 1, "'trust' must be string or array");
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+		lua_pop(L, 1);
+
+	} else {
+		ub_ctx_resolvconf(*ctx, NULL);
+		ub_ctx_async(*ctx, 1);
+		ub_ctx_add_ta(*ctx, ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"); /* I know ... */
+	}
 	return 1;
 }
 
