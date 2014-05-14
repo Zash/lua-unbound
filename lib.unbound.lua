@@ -66,27 +66,32 @@ local unbound = { _LIBVER = ffi.string(libunbound.ub_version()), _LIB = libunbou
 local context = {};
 local context_mt = { __index = context };
 
+local function parse_result(err, result)
+	local answer;
+	if err == 0 and result[0].havedata then
+		local result = result[0];
+		answer = {
+			qname = ffi.string(result.qname),
+			qclass = result.qclass,
+			qtype = result.qtype;
+			rcode = result.rcode;
+			secure = result.secure == 1;
+			bogus = result.bogus == 1 and ffi.string(result.why_bogus) or nil;
+		}
+		local i = 0;
+		while result.len[i] > 0 do
+			local data = ffi.string(result.data[i], result.len[i]);
+			i = i + 1;
+			answer[i] = data;
+		end
+	end
+	return answer;
+end
+
 function unbound.new(config)
 	local self = setmetatable(config or {}, context_mt);
 	local function callback(_, err, result)
-		local answer;
-		if err == 0 and result[0].havedata then
-			local result = result[0];
-			answer = {
-				qname = ffi.string(result.qname),
-				qclass = result.qclass,
-				qtype = result.qtype;
-				rcode = result.rcode;
-				secure = result.secure == 1;
-				bogus = result.bogus == 1 and ffi.string(result.why_bogus) or nil;
-			}
-			local i = 0;
-			while result.len[i] > 0 do
-				local data = ffi.string(result.data[i], result.len[i]);
-				i = i + 1;
-				answer[i] = data;
-			end
-		end
+		local answer = parse_result(err, result);
 		libunbound.ub_resolve_free(result);
 		if answer and self.callback then
 			self:callback(answer);
