@@ -11,5 +11,5 @@ echo 'if not pcall(require,"ffi") then return end'
 # Then insert modules into package.preload
 Module "net.adns" "net.unbound.lua"
 Module "util.dns" "util.dns.lua"
-Module "lib.unbound" "lib.unbound.lua"
+Module "util.lunbound" "util.lunbound.lua"
 Module "net.dns" "fakedns.lua"
