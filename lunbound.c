@@ -1,3 +1,8 @@
+/* Copyright (C) 2014 - Kim Alvefur
+ *
+ * This file is MIT/X11 licensed.
+ */
+
 #include <lualib.h>
 #include <lauxlib.h>
 #include <unbound.h>
