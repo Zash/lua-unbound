@@ -138,7 +138,7 @@ function parsers.AAAA(packet)
 	for s in s_gmatch(ip, ":0:[0:]+") do
 		if len < #s then len,token = #s,s; end -- find longest sequence of zeros
 	end
-	return s_gsub(ip, token or "^0:[0:]+", "::", 1);
+	return (s_gsub(ip, token or "^0:[0:]+", "::", 1));
 end
 
 local mx_mt = {
