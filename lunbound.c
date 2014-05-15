@@ -2,6 +2,11 @@
 #include <lauxlib.h>
 #include <unbound.h>
 
+/* Hardcoded root trust anchor ... I know
+ * https://data.iana.org/root-anchors/root-anchors.xml
+ */
+#define IANA_ROOT_TA ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"
+
 typedef struct {
 	struct lua_State* L;
 	int func_ref;
@@ -60,7 +65,7 @@ int lub_new(lua_State* L) {
 	} else {
 		ub_ctx_resolvconf(*ctx, NULL);
 		ub_ctx_async(*ctx, 1);
-		ub_ctx_add_ta(*ctx, ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"); /* I know ... */
+		ub_ctx_add_ta(*ctx, IANA_ROOT_TA);
 	}
 	return 1;
 }
