@@ -17,13 +17,25 @@ Downloading
 
 Source can be downloaded with mercurial from <http://code.zash.se/luaunbound/>.
 
-Building
---------
+Dependencies
+------------
+
+* Required
+  * libunbound
+* Optional
+  * LuaJIT 2
+* Build-time (not required with LuaJIT)
+  * Lua headers
+  * libunbound headers
+
+LuaJIT FFI method
+-----------------
+
+### Building
 
 `./squish.sh > use_unbound.lua`
 
-Installation
-------------
+### Installation
 
 1. Put `use_unbound.lua` in `/etc/prosody` or where your `prosody.cfg.lua` lives.
 2. In the global section of your `prosody.cfg.lua`, add the following:
@@ -35,6 +47,21 @@ Installation
 3. Then start Prosody in LuaJIT. (How to do this is left as an exercise.)
 4. If you have debug logging enabled, you should see logs from 'unbound' about
   lookups performed.
+
+C module method
+---------------
+
+### Building
+
+Development packages
+
+`make`
+
+### Installing
+
+`sudo make install TARGET=/path/to/prosody`
+
+**Note:** This replaces files in your prosody installation and needs to be re-run after upgrades.
 
 Configuration
 -------------
@@ -60,7 +87,7 @@ Modules
 
 * `util.lunbound`
 
-  The module that wraps libunbound.
+  The module that wraps libunbound.  Both a C version and a FFI version is available.
 
 * `util.dns`
 
