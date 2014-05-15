@@ -38,7 +38,7 @@ int lub_new(lua_State* L) {
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		lua_pop(L, 1);
 
-		lua_pushstring(L, "trust");
+		lua_pushstring(L, "trusted");
 		lua_gettable(L, 1);
 		if(lua_istable(L, -1)) {
 			lua_rawgeti(L, -1, i++);
