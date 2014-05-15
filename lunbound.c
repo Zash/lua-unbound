@@ -19,13 +19,24 @@ int lub_new(lua_State* L) {
 	*ctx = ub_ctx_create();
 	luaL_getmetatable(L, "ub_ctx");
 	lua_setmetatable(L, -2);
+
+	/* Handle config table */
 	if(lua_istable(L, 1)) {
+		/* Enable threads?
+		 * ["async"] = true  -- threads
+		 *           = false -- fork a process
+		 */
 		lua_pushstring(L, "async");
 		lua_gettable(L, 1);
 		ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		lua_pop(L, 1);
 
+		/* Path to resolv.conf
+		 * ["resolvconf"] = "/path/to/resolv.conf"
+		 *                = true  -- Use resolvers set by OS
+		 *                = false -- Use root hints
+		 */
 		lua_pushstring(L, "resolvconf");
 		lua_gettable(L, 1);
 		if(lua_isstring(L, -1))
@@ -36,6 +47,9 @@ int lub_new(lua_State* L) {
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		lua_pop(L, 1);
 
+		/* Path to hosts.txt
+		 * ["hoststxt"] = "/path/to/hosts.txt"
+		 */
 		lua_pushstring(L, "hoststxt");
 		lua_gettable(L, 1);
 		if(lua_isstring(L, -1))
@@ -43,6 +57,9 @@ int lub_new(lua_State* L) {
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		lua_pop(L, 1);
 
+		/* List of trust anchors
+		 * ["trusted"] = ". IN DS ..." -- Single string or array of strings
+		 */
 		lua_pushstring(L, "trusted");
 		lua_gettable(L, 1);
 		if(lua_istable(L, -1)) {
@@ -63,6 +80,11 @@ int lub_new(lua_State* L) {
 		lua_pop(L, 1);
 
 	} else {
+		/* Defaults:
+		 * Use system resolv.conf
+		 * Threads enabled
+		 * Hardcoded root
+		 */
 		ub_ctx_resolvconf(*ctx, NULL);
 		ub_ctx_async(*ctx, 1);
 		ub_ctx_add_ta(*ctx, IANA_ROOT_TA);
