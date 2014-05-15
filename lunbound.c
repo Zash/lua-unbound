@@ -98,6 +98,12 @@ static int lub_ctx_destroy(lua_State* L) {
 	return 0;
 }
 
+static int lub_ctx_tostring(lua_State* L) {
+	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
+	lua_pushfstring(L, "ub_ctx: %p", ctx);
+	return 1;
+}
+
 static int lub_ctx_getfd(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_pushinteger(L, ub_fd(*ctx));
@@ -246,6 +252,7 @@ static int lub_poll(lua_State* L) {
 
 static luaL_Reg ctx_mt[] = {
 	{"__gc", lub_ctx_destroy},
+	{"__tostring", lub_ctx_tostring},
 	{NULL, NULL}
 };
 
