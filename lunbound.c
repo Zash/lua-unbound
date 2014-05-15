@@ -201,10 +201,10 @@ static int lub_resolve_async(lua_State* L) {
 	int ref, ret, async_id;
 	cb_data* my_data;
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	luaL_checktype(L, 2, LUA_TFUNCTION);
 	char* qname = (char*)luaL_checkstring(L, 3);
 	int rrtype = luaL_optint(L, 4, 1);
 	int rrclass = luaL_optint(L, 5, 1);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
 	luaL_getmetatable(L, "ub_cb");
