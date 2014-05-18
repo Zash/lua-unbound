@@ -6,7 +6,7 @@ lunbound.so: lunbound.o
 	$(LD) -o $@ $^ -shared -lunbound
 
 .c.o:
-		$(CC) -c -fPIC -o $@ $<
+	$(CC) -c -fPIC -o $@ $<
 
 install-base:
 	$(INSTALL) net.unbound.lua $(TARGET)/net/adns.lua

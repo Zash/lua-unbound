@@ -20,83 +20,80 @@ typedef struct {
 int lub_new(lua_State* L) {
 	int ret;
 	int i = 1;
+	int pop = 1;
 	struct ub_ctx** ctx = lua_newuserdata(L, sizeof(struct ub_ctx*));
 	*ctx = ub_ctx_create();
 	luaL_getmetatable(L, "ub_ctx");
 	lua_setmetatable(L, -2);
 
 	/* Handle config table */
-	if(lua_istable(L, 1)) {
-		/* Enable threads?
-		 * ["async"] = true  -- threads
-		 *           = false -- fork a process
-		 */
-		lua_pushstring(L, "async");
-		lua_gettable(L, 1);
-		ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-		lua_pop(L, 1);
 
-		/* Path to resolv.conf
-		 * ["resolvconf"] = "/path/to/resolv.conf"
-		 *                = true  -- Use resolvers set by OS
-		 *                = false -- Use root hints
-		 */
-		lua_pushstring(L, "resolvconf");
-		lua_gettable(L, 1);
-		if(lua_isstring(L, -1))
-			ret = ub_ctx_resolvconf(*ctx, (char *)lua_tostring(L, -1));
-		else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
-			ret = ub_ctx_resolvconf(*ctx, 0);
-		/* else use root hits */
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-		lua_pop(L, 1);
-
-		/* Path to hosts.txt
-		 * ["hoststxt"] = "/path/to/hosts.txt"
-		 *                = true  -- Use appropriate hosts.txt depending on OS
-		 */
-		lua_pushstring(L, "hoststxt");
-		lua_gettable(L, 1);
-		if(lua_isstring(L, -1))
-			ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
-		else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
-			ret = ub_ctx_hosts(*ctx, 0);
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-		lua_pop(L, 1);
-
-		/* List of trust anchors
-		 * ["trusted"] = ". IN DS ..." -- Single string or array of strings
-		 */
-		lua_pushstring(L, "trusted");
-		lua_gettable(L, 1);
-		if(lua_istable(L, -1)) {
-			lua_rawgeti(L, -1, i++);
-			while(ret == 0 && lua_isstring(L, -1)) {
-					ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
-					lua_pop(L, 1);
-					lua_rawgeti(L, -1, i++);
-			}
-			lua_pop(L, 1);
-			luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-		}
-		else if(lua_isstring(L, -1))
-			ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
-		else if(!lua_isnil(L, -1))
-			luaL_argerror(L, 1, "'trust' must be string or array");
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-		lua_pop(L, 1);
-
-	} else {
-		/* Defaults:
-		 * Use system resolv.conf
-		 * Threads enabled
-		 * Hardcoded root
-		 */
-		ub_ctx_resolvconf(*ctx, NULL);
-		ub_ctx_async(*ctx, 1);
-		ub_ctx_add_ta(*ctx, IANA_ROOT_TA);
+	if(!lua_istable(L, 1)) {
+		luaL_getmetatable(L, "ub_default_config");
+		pop = 2;
 	}
+
+	/* Enable threads?
+	 * ["async"] = true  -- threads
+	 *           = false -- fork a process
+	 */
+	lua_pushstring(L, "async");
+	lua_gettable(L, 1);
+	ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
+	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lua_pop(L, 1);
+
+	/* Path to resolv.conf
+	 * ["resolvconf"] = "/path/to/resolv.conf"
+	 *                = true  -- Use resolvers set by OS
+	 *                = false -- Use root hints
+	 */
+	lua_pushstring(L, "resolvconf");
+	lua_gettable(L, 1);
+	if(lua_isstring(L, -1))
+		ret = ub_ctx_resolvconf(*ctx, (char *)lua_tostring(L, -1));
+	else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+		ret = ub_ctx_resolvconf(*ctx, 0);
+	/* else use root hits */
+	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lua_pop(L, 1);
+
+	/* Path to hosts.txt
+	 * ["hoststxt"] = "/path/to/hosts.txt"
+	 *                = true  -- Use appropriate hosts.txt depending on OS
+	 */
+	lua_pushstring(L, "hoststxt");
+	lua_gettable(L, 1);
+	if(lua_isstring(L, -1))
+		ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
+	else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+		ret = ub_ctx_hosts(*ctx, 0);
+	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lua_pop(L, 1);
+
+	/* List of trust anchors
+	 * ["trusted"] = ". IN DS ..." -- Single string or array of strings
+	 */
+	lua_pushstring(L, "trusted");
+	lua_gettable(L, 1);
+	if(lua_istable(L, -1)) {
+		lua_rawgeti(L, -1, i++);
+		while(ret == 0 && lua_isstring(L, -1)) {
+				ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
+				lua_pop(L, 1);
+				lua_rawgeti(L, -1, i++);
+		}
+		lua_pop(L, 1);
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	}
+	else if(lua_isstring(L, -1))
+		ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
+	else if(!lua_isnil(L, -1))
+		luaL_argerror(L, 1, "'trust' must be string or array");
+	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+
+	lua_pop(L, pop);
+
 	return 1;
 }
 
@@ -319,6 +316,24 @@ int luaopen_lunbound(lua_State* L) {
 	luaL_register(L, NULL, lub_lib_funcs);
 	lua_pushstring(L, ub_version());
 	lua_setfield(L, -2, "_LIBVER");
+
+	/* Defaults */
+	luaL_newmetatable(L, "ub_default_config");
+	 /* Threads enabled */
+	lua_pushboolean(L, 1);
+	lua_setfield(L, -2, "async");
+	 /* Use system resolv.conf */
+	lua_pushboolean(L, 1);
+	lua_setfield(L, -2, "resolvconf");
+	 /* Use system hosts.txt */
+	lua_pushboolean(L, 1);
+	lua_setfield(L, -2, "hoststxt");
+	 /* Hardcoded root */
+	lua_pushstring(L, IANA_ROOT_TA);
+	lua_setfield(L, -2, "trusted");
+
+	lua_setfield(L, -2, "config");
+
 	return 1;
 }
 
