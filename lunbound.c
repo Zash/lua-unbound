@@ -54,11 +54,14 @@ int lub_new(lua_State* L) {
 
 		/* Path to hosts.txt
 		 * ["hoststxt"] = "/path/to/hosts.txt"
+		 *                = true  -- Use appropriate hosts.txt depending on OS
 		 */
 		lua_pushstring(L, "hoststxt");
 		lua_gettable(L, 1);
 		if(lua_isstring(L, -1))
 			ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
+		else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+			ret = ub_ctx_hosts(*ctx, 0);
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		lua_pop(L, 1);
 
