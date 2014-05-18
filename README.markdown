@@ -94,6 +94,26 @@ Modules
 
   DNS parsing library.
 
+API
+---
+
+### `util.lunbound`
+
+The lunbound module has a single function, `new()` for creating a new
+context.  It takes a table with configuration as single optional
+argument.  If no argument is given the `config` table on the module will
+be used.
+
+Config options are:
+
+* `async`: Uses threads if `true` or forks a process if `false`.
+* `hoststxt`: Path to `hosts.txt` file.  If set to `true` then the
+  default system `hosts.txt` file.
+* `resolvconf`: Path to resolver configuration.  If set to `true` then
+  the default system resolvers are used.  Otherwise root hints are used.
+* `trusted`: DNSSEC root trust anchors, a string or array of strings.
+  Defaults to hard-coded IANA root anchors.
+
 Links
 -----
 
