@@ -20,18 +20,20 @@ typedef struct {
 int lub_new(lua_State* L) {
 	int ret;
 	int i = 1;
-	int pop = 1;
-	struct ub_ctx** ctx = lua_newuserdata(L, sizeof(struct ub_ctx*));
+	struct ub_ctx** ctx;
+
+	/* Load table with default config if none given. */
+	if(!lua_istable(L, 1)) {
+		luaL_getmetatable(L, "ub_default_config");
+	}
+
+	/* Create context and assign metatable. */
+	ctx = lua_newuserdata(L, sizeof(struct ub_ctx*));
 	*ctx = ub_ctx_create();
 	luaL_getmetatable(L, "ub_ctx");
 	lua_setmetatable(L, -2);
 
 	/* Handle config table */
-
-	if(!lua_istable(L, 1)) {
-		luaL_getmetatable(L, "ub_default_config");
-		pop = 2;
-	}
 
 	/* Enable threads?
 	 * ["async"] = true  -- threads
@@ -92,7 +94,7 @@ int lub_new(lua_State* L) {
 		luaL_argerror(L, 1, "'trust' must be string or array");
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 
-	lua_pop(L, pop);
+	lua_pop(L, 1);
 
 	return 1;
 }
