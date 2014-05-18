@@ -1,14 +1,14 @@
 libunbound for Prosody
 ======================
 
-This is a drop-in replacement for Prosodys internal DNS library with a binding to
-libunbound.
+This is a drop-in replacement for Prosodys internal DNS library with a
+binding to libunbound.
 
 Why use it
 ----------
 
-This module can be used with [`mod_s2s_auth_dane`](http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane)
-to support secure delegation and for [DANE](http://tools.ietf.org/html/rfc6698).
+This module can be used with [`mod_s2s_auth_dane`][] to support secure
+delegation and for [DANE][].
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
 
@@ -61,7 +61,8 @@ Development packages
 
 `sudo make install TARGET=/path/to/prosody`
 
-**Note:** This replaces files in your prosody installation and needs to be re-run after upgrades.
+**Note:** This replaces files in your prosody installation and needs to
+be re-run after upgrades.
 
 Configuration
 -------------
@@ -87,7 +88,7 @@ Modules
 
 * `util.lunbound`
 
-  The module that wraps libunbound.  Both a C version and a FFI version is available.
+  The module that wraps libunbound.
 
 * `util.dns`
 
@@ -100,3 +101,5 @@ Links
 * <http://luajit.org/>
 * <https://unbound.net/>
 
+[mod_s2s_auth_dane]: http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane
+[DANE]: http://tools.ietf.org/html/rfc6698
