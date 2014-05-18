@@ -7,7 +7,7 @@ binding to libunbound.
 Why use it
 ----------
 
-This module can be used with [`mod_s2s_auth_dane`][] to support secure
+This module can be used with [`mod_s2s_auth_dane`][daneplugin] to support secure
 delegation and for [DANE][].
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
@@ -201,5 +201,5 @@ Links
 * <http://luajit.org/>
 * <https://unbound.net/>
 
-[mod_s2s_auth_dane]: http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane
+[daneplugin]: http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane
 [DANE]: http://tools.ietf.org/html/rfc6698
