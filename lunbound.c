@@ -15,6 +15,7 @@
 typedef struct {
 	struct lua_State* L;
 	int func_ref;
+	int self_ref;
 } cb_data;
 
 int lub_new(lua_State* L) {
@@ -194,6 +195,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 		lua_pop(my_data->L, 1); /* Ignore error */
 	}
 	luaL_unref(my_data->L, -1, my_data->func_ref);
+	luaL_unref(my_data->L, -1, my_data->self_ref);
 }
 
 static int lub_resolve_async(lua_State* L) {
@@ -204,9 +206,10 @@ static int lub_resolve_async(lua_State* L) {
 	int rrtype = luaL_optint(L, 4, 1);
 	int rrclass = luaL_optint(L, 5, 1);
 	luaL_checktype(L, 2, LUA_TFUNCTION);
+	luaL_getmetatable(L, "ub_cb");
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
-	luaL_getmetatable(L, "ub_cb");
+	my_data->self_ref = luaL_ref(L, -2);
 	lua_pushvalue(L, 2);
 	ref = luaL_ref(L, -2);
 	lua_rawgeti(L, -1, ref);
