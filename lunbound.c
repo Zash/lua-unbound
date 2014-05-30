@@ -186,12 +186,12 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 	lua_rawgeti(my_data->L, -1, my_data->func_ref);
 	if(err != 0) {
 		lua_pushnil(my_data->L);
-		lua_pushstring(my_data->L, ub_strerror(err));
-		ub_resolve_free(result);
-		lua_pcall(my_data->L, 2, 0, 0);
-	} else  {
+	} else {
 		lub_parse_result(my_data->L, result);
-		lua_pcall(my_data->L, 1, 0, 0);
+	}
+	lua_pushstring(my_data->L, ub_strerror(err));
+	if(lua_pcall(my_data->L, 2, 0, 0) != 0) {
+		lua_pop(my_data->L, 1); /* Ignore error */
 	}
 	luaL_unref(my_data->L, -1, my_data->func_ref);
 }
