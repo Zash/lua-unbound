@@ -184,10 +184,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 	cb_data* my_data = (cb_data*)data;
 	luaL_getmetatable(my_data->L, "ub_cb");
 	lua_rawgeti(my_data->L, -1, my_data->func_ref);
-	if(lua_type(my_data->L, -1) != LUA_TFUNCTION) {
-		/* Unpossible */
-		ub_resolve_free(result);
-	} else if(err != 0) {
+	if(err != 0) {
 		lua_pushnil(my_data->L);
 		lua_pushstring(my_data->L, ub_strerror(err));
 		ub_resolve_free(result);
