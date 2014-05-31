@@ -183,19 +183,20 @@ static int lub_resolve(lua_State* L) {
 
 void lub_callback(void* data, int err, struct ub_result* result) {
 	cb_data* my_data = (cb_data*)data;
-	luaL_getmetatable(my_data->L, "ub_cb");
-	lua_rawgeti(my_data->L, -1, my_data->func_ref);
+	lua_State* L = my_data->L;
+	luaL_getmetatable(L, "ub_cb");
+	lua_rawgeti(L, -1, my_data->func_ref);
 	if(err != 0) {
-		lua_pushnil(my_data->L);
+		lua_pushnil(L);
 	} else {
-		lub_parse_result(my_data->L, result);
+		lub_parse_result(L, result);
 	}
-	lua_pushstring(my_data->L, ub_strerror(err));
-	if(lua_pcall(my_data->L, 2, 0, 0) != 0) {
-		lua_pop(my_data->L, 1); /* Ignore error */
+	lua_pushstring(L, ub_strerror(err));
+	if(lua_pcall(L, 2, 0, 0) != 0) {
+		lua_pop(L, 1); /* Ignore error */
 	}
-	luaL_unref(my_data->L, -1, my_data->func_ref);
-	luaL_unref(my_data->L, -1, my_data->self_ref);
+	luaL_unref(L, -1, my_data->func_ref);
+	luaL_unref(L, -1, my_data->self_ref);
 }
 
 static int lub_resolve_async(lua_State* L) {
