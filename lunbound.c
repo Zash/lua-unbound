@@ -197,6 +197,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 	}
 	luaL_unref(L, -1, my_data->func_ref);
 	luaL_unref(L, -1, my_data->self_ref);
+	lua_settop(L, 1);
 }
 
 static int lub_resolve_async(lua_State* L) {
