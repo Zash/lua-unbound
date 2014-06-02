@@ -216,9 +216,12 @@ static int lub_resolve_async(lua_State* L) {
 	ref = luaL_ref(L, -2);
 	lua_rawgeti(L, -1, ref);
 	my_data->func_ref = ref;
+	lua_pop(L, 1);
 	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &async_id);
 
 	if(ret != 0) {
+		luaL_unref(L, -1, my_data->func_ref);
+		luaL_unref(L, -1, my_data->self_ref);
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
