@@ -75,6 +75,9 @@ local function parse_result(err, result)
 			secure = result[0].secure == 1;
 			bogus  = result[0].bogus == 1 and ffi.string(result[0].why_bogus) or nil;
 		}
+		if result[0].canonname then
+			answer.canonname = ffi.string(result[0].canonname)
+		end
 		local i, data = 0;
 		while result[0].len[i] > 0 do
 			data = ffi.string(result[0].data[i], result[0].len[i]);
