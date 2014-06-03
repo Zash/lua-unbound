@@ -91,34 +91,26 @@ local soa_mt = {
 	end
 };
 function parsers.SOA(packet)
-	local mname, rname, serial, refresh, retry, expire, minimum, offset, a,b,c,d;
+	local mname, rname, serial, refresh, retry, expire, minimum, offset;
 
 	mname, offset = readDnsName(packet, 1);
 	rname, offset = readDnsName(packet, offset);
 
-	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
-	serial  = a*0x1000000 + b*0x10000 + c*0x100 + d;
-
-	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
-	refresh = a*0x1000000 + b*0x10000 + c*0x100 + d;
-
-	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
-	retry   = a*0x1000000 + b*0x10000 + c*0x100 + d;
-
-	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
-	expire  = a*0x1000000 + b*0x10000 + c*0x100 + d;
-
-	a,b,c,d = s_byte(packet, offset, offset+3); offset = offset + 4;
-	minimum = a*0x1000000 + b*0x10000 + c*0x100 + d;
+	local
+		s1, s2, s3, s4,
+		r1, r2, r3, r4,
+		t1, t2, t3, t4,
+		e1, e2, e3, e4,
+		m1, m2, m3, m4 = s_byte(packet, offset, offset + 19);
 
 	return setmetatable({
 		mname = mname;
 		rname = rname;
-		serial = serial;
-		refresh = refresh;
-		retry = retry;
-		expire = expire;
-		minimum = minimum;
+		serial  = s1*0x1000000 + s2*0x10000 + s3*0x100 + s4;
+		refresh = r1*0x1000000 + r2*0x10000 + r3*0x100 + r4;
+		retry   = t1*0x1000000 + t2*0x10000 + t3*0x100 + t4;
+		expire  = e1*0x1000000 + e2*0x10000 + e3*0x100 + e4;
+		minimum = m1*0x1000000 + m2*0x10000 + m3*0x100 + m4;
 	}, soa_mt);
 end
 
