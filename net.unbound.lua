@@ -198,7 +198,7 @@ local function cancel(query)
 	local ok = t_remove(qcb, n);
 	if not ok then return false end
 	if #qcb == 0 then
-		query.q:cancel();
+		unbound:cancel(query.q);
 	end
 	return true;
 end
