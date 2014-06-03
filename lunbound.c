@@ -177,6 +177,7 @@ static int lub_resolve(lua_State* L) {
 	if(ret != 0) {
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
+		return 2;
 	}
 	return lub_parse_result(L, result);
 }
