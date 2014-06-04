@@ -63,6 +63,13 @@ context.resolvconf = libunbound.ub_ctx_resolvconf;
 context._resolve = libunbound.ub_resolve;
 context._resolve_async = libunbound.ub_resolve_async;
 
+unbound.config = {
+	resolvconf = true;
+	async = true;
+	trusted = ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5";
+	hoststxt = true;
+}
+
 local function parse_result(err, result)
 	ffi.gc(result, libunbound.ub_resolve_free);
 	local answer;
@@ -89,6 +96,7 @@ end
 
 function unbound.new(config)
 	local ub_ctx = libunbound.ub_ctx_create();
+	config = config or unbound.config;
 
 	if config.async ~= nil then
 		ub_ctx:async(config.async);
