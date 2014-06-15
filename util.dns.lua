@@ -175,6 +175,8 @@ function parsers.TXT(packet)
 	return setmetatable(r, txt_mt);
 end
 
+parsers.SPF = parsers.TXT;
+
 local tohex = function(c) return s_format("%02X", s_byte(c)) end
 -- Acronyms from RFC 7218
 local tlsa_usages = {
