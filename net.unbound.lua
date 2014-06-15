@@ -99,13 +99,11 @@ local callbacks = setmetatable({}, {
 	end
 });
 
-local function ub_callback(a)
-	local gotdataat = gettime();
+local function prep_answer(a)
 	local status = errors[a.rcode];
 	local qclass = classes[a.qclass];
 	local qtype = types[a.qtype];
 	a.status, a.class, a.type = status, qclass, qtype;
-	local q = a.qname .. " " .. qclass .. " " .. qtype;
 
 	local t = s_lower(qtype);
 	local rr_mt = { __index = a, __tostring = function(self) return tostring(self[t]) end };
@@ -120,7 +118,13 @@ local function ub_callback(a)
 			}, rr_mt);
 		end
 	end
-	setmetatable(a, answer_mt);
+	return setmetatable(a, answer_mt);
+end
+
+local function ub_callback(a)
+	local gotdataat = gettime();
+	prep_answer(a);
+	local q = a.qname .. " " .. a.class .. " " .. a.type;
 
 	local cbs;
 	cbs, callbacks[q] = callbacks[q], nil;
