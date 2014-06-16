@@ -3,10 +3,10 @@ TARGET?=/usr/lib/prosody
 INSTALL?=install -m644 --backup numbered
 
 lunbound.so: lunbound.o
-	$(LD) -o $@ $^ -shared -lunbound
+	$(LD) -o $@ $^ -shared -lunbound $(LDFLAGS)
 
 .c.o:
-	$(CC) -c -fPIC -o $@ $<
+	$(CC) -c -fPIC -o $@ $< $(CFLAGS)
 
 install-base:
 	$(INSTALL) net.unbound.lua $(TARGET)/net/adns.lua
