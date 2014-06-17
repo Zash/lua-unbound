@@ -128,6 +128,7 @@ local function lookup(callback, qname, qtype, qclass)
 			a.secure and "Secure" or a.bogus or "Insecure", gotdataat - startedat); -- Insecure as in unsigned
 		return callback(a, err);
 	end
+	log("debug", "Resolve %s %s %s", qname, qclass, qtype);
 	ok, err = unbound:resolve_async(callback_wrapper, qname, ntype, nclass);
 	if ok then
 		waiting_queries[ok] = callback;
