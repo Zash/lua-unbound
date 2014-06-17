@@ -124,7 +124,7 @@ local function lookup(callback, qname, qtype, qclass)
 		local gotdataat = gettime();
 		waiting_queries[ok] = nil;
 		prep_answer(a);
-		log("debug", "Results for %s %s %s: %s (%s, %f sec)", qname, qtype, qclass, a.rcode == 0 and (#a .. " items") or a.status,
+		log("debug", "Results for %s %s %s: %s (%s, %f sec)", qname, qclass, qtype, a.rcode == 0 and (#a .. " items") or a.status,
 			a.secure and "Secure" or a.bogus or "Insecure", gotdataat - startedat); -- Insecure as in unsigned
 		return callback(a, err);
 	end
