@@ -5,8 +5,6 @@
 
 local setmetatable = setmetatable;
 local tostring = tostring;
-local t_insert = table.insert;
-local t_remove = table.remove;
 local t_concat = table.concat;
 local s_format = string.format;
 local s_lower = string.lower;
@@ -91,15 +89,10 @@ local answer_mt = {
 	end,
 };
 
-local callbacks = setmetatable({}, {
-	__index = function(t, n)
-		local nt = {};
-		t[n] = nt;
-		return nt;
-	end
-});
+local waiting_queries = { };
 
 local function prep_answer(a)
+	if not a then return end
 	local status = errors[a.rcode];
 	local qclass = classes[a.qclass];
 	local qtype = types[a.qtype];
@@ -121,89 +114,48 @@ local function prep_answer(a)
 	return setmetatable(a, answer_mt);
 end
 
-local function ub_callback(a)
-	local gotdataat = gettime();
-	prep_answer(a);
-	local q = a.qname .. " " .. a.class .. " " .. a.type;
-
-	local cbs;
-	cbs, callbacks[q] = callbacks[q], nil;
-
-	log("debug", "Results for %s: %s (%s, %f sec)", q, a.rcode == 0 and (#a .. " items") or a.status,
-		a.secure and "Secure" or a.bogus or "Insecure", gotdataat - cbs.t); -- Insecure as in unsigned
-
-	--[[
-	if #a == 0 then
-		a=nil -- COMPAT Older prosody expected nil instead of table with error
-	end
-	--]]
-	for i = 1, #cbs do
-		cbs[i](a);
-	end
-end
-
 local function lookup(callback, qname, qtype, qclass)
 	qtype = qtype and s_upper(qtype) or "A";
 	qclass = qclass and s_upper(qclass) or "IN";
 	local ntype, nclass = types[qtype], classes[qclass];
-	if not ntype or not nclass then
-		return nil, "Invalid type or class"
+	local startedat = gettime();
+	local ok, err;
+	local function callback_wrapper(a, err)
+		local gotdataat = gettime();
+		waiting_queries[ok] = nil;
+		prep_answer(a);
+		log("debug", "Results for %s %s %s: %s (%s, %f sec)", qname, qtype, qclass, a.rcode == 0 and (#a .. " items") or a.status,
+			a.secure and "Secure" or a.bogus or "Insecure", gotdataat - startedat); -- Insecure as in unsigned
+		return callback(a, err);
 	end
-	if not qname or #qname <= 1 or qname:find("..", 1, true) then
-		callback();
-		return nil, "invalid qname";
-	end
-	local q = qname.." "..qclass.." "..qtype;
-	local qcb = callbacks[q];
-	qcb.t = qcb.t or gettime();
-	local n = #qcb;
-	t_insert(qcb, callback);
-	if n == 0 then
-		log("debug", "Resolve %s", q);
-		local ok, err = unbound:resolve_async(ub_callback, qname, ntype, nclass);
-		if not ok then
-			log("warn", "Something went wrong, %s", err);
-		end
-		qcb.q = ok;
+	ok, err = unbound:resolve_async(callback_wrapper, qname, ntype, nclass);
+	if ok then
+		waiting_queries[ok] = callback;
 	else
-		log("debug", "Already %d waiting callbacks for %s", n, q);
+		log("warn", err);
 	end
-	return {
-		cb = callback,
-		qname = qname,
-		qtype = qtype,
-		qclass = qclass,
-		q = q,
-		qcb = qcb,
-		n = n +1;
-	};
+	return ok, err;
+end
+
+local function cancel(id)
+	local cb = waiting_queries[id];
+	unbound:cancel(id);
+	if cb then
+		cb(nil, "canceled");
+	end
+	return true;
 end
 
 -- Reinitiate libunbound context, drops cache
 local function purge()
+	for id in pairs(waiting_queries) do
+		cancel(id);
+	end
 	if server_conn then
 		server_conn:close();
 	end
 	unbound = libunbound.new(unbound_config);
 	server_conn = connect_server(unbound, server);
-	local oldcb = callbacks;
-	callbacks = setmetatable({}, getmetatable(oldcb));
-	setmetatable(oldcb, nil);
-	for q, cbs in pairs(oldcb) do
-		for i = 1, #cbs do
-			cbs[i]();
-		end
-	end
-	return true;
-end
-
-local function cancel(query)
-	local qcb, n = query.qcb, query.n;
-	local ok = t_remove(qcb, n);
-	if not ok then return false end
-	if #qcb == 0 then
-		unbound:cancel(query.q);
-	end
 	return true;
 end
 
