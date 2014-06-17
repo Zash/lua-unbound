@@ -142,6 +142,7 @@ local function cancel(id)
 	unbound:cancel(id);
 	if cb then
 		cb(nil, "canceled");
+		waiting_queries[id] = nil;
 	end
 	return true;
 end
