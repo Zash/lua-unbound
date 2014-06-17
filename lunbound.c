@@ -280,18 +280,6 @@ static luaL_Reg ctx_methods[] = {
 	{NULL, NULL}
 };
 
-/*
-static luaL_Reg lookup_mt[] = {
-	{"__gc", lub_lookup_cancel},
-	{NULL, NULL}
-};
-
-static luaL_Reg lookup_methods[] = {
-	{"cancel", lub_lookup_cancel},
-	{NULL, NULL}
-};
-*/
-
 static luaL_Reg lub_lib_funcs[] = {
 	{"new", lub_new},
 	{NULL, NULL}
@@ -306,16 +294,6 @@ int luaopen_lunbound(lua_State* L) {
 	luaL_register(L, NULL, ctx_methods);
 	lua_settable(L, 2);
 	lua_pop(L, 1);
-
-	/* TODO Return lookup object with cancel method
-	luaL_newmetatable(L, "ub_lookup");
-	luaL_register(L, NULL, lookup_mt);
-	lua_pushstring(L, "__index");
-	lua_createtable(L, 0, 2);
-	luaL_register(L, NULL, lookup_methods);
-	lua_settable(L, 2);
-	lua_pop(L, 1);
-	*/
 
 	luaL_newmetatable(L, "ub_cb");
 	lua_pop(L, 1);
