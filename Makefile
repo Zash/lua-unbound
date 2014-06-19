@@ -10,4 +10,7 @@ use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
 .c.o:
 	$(CC) -c -fPIC -o $@ $< $(CFLAGS)
 
+clean:
+	@rm -v lunbound.o lunbound.so use_unbound.lua
+
 .PHONY: all
