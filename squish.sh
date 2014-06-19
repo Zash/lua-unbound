@@ -5,11 +5,11 @@ Module() {
 	echo 'end);'
 }
 
-# Guard against being loaded without FFI support
-echo 'if not pcall(require,"ffi") then return end'
+# Guard against being loaded without FFI support or the C modlue
+echo 'if pcall(require,"ffi") then'
+Module "util.lunbound" "util.lunbound.lua"
+echo 'elseif not pcall(require,"util.lunbound") then return end'
 
-# Then insert modules into package.preload
 Module "net.adns" "net.unbound.lua"
 Module "util.dns" "util.dns.lua"
-Module "util.lunbound" "util.lunbound.lua"
 Module "net.dns" "fakedns.lua"
