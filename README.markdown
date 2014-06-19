@@ -28,41 +28,33 @@ Dependencies
   * Lua headers
   * libunbound headers
 
-LuaJIT FFI method
------------------
-
-### Building
+Building
+--------
 
 `./squish.sh > use_unbound.lua`
 
-### Installation
+To build the C module (can be skipped if running under LuaJIT):
+
+  make
+
+Installation
+------------
 
 1. Put `use_unbound.lua` in `/etc/prosody` or where your `prosody.cfg.lua` lives.
-2. In the global section of your `prosody.cfg.lua`, add the following:
+
+2. Install the C module (can be skipped if running under LuaJIT):
+
+    sudo install lunbound.so /path/to/prosody/util/
+
+3. In the global section of your `prosody.cfg.lua`, add the following:
 
 		RunScript "use_unbound.lua"
 		resolvconf = "/etc/resolv.conf"
 		hoststxt = "/etc/hosts"
 
-3. Then start Prosody in LuaJIT. (How to do this is left as an exercise.)
-4. If you have debug logging enabled, you should see logs from 'unbound' about
+4. Then start Prosody.  (Running under LuaJIT is left as an exercise.)
+5. If you have debug logging enabled, you should see logs from 'unbound' about
   lookups performed.
-
-C module method
----------------
-
-### Building
-
-Development packages
-
-`make`
-
-### Installing
-
-`sudo make install TARGET=/path/to/prosody`
-
-**Note:** This replaces files in your prosody installation and needs to
-be re-run after upgrades.
 
 Configuration
 -------------
