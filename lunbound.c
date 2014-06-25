@@ -285,6 +285,10 @@ static luaL_Reg lub_lib_funcs[] = {
 	{NULL, NULL}
 };
 
+#if (LUA_VERSION_NUM == 502)
+#define luaL_register(L, N, R) luaL_setfuncs(L, R, 0)
+#endif
+
 int luaopen_lunbound(lua_State* L) {
 
 	luaL_newmetatable(L, "ub_ctx");
