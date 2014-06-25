@@ -289,10 +289,9 @@ int luaopen_lunbound(lua_State* L) {
 
 	luaL_newmetatable(L, "ub_ctx");
 	luaL_register(L, NULL, ctx_mt);
-	lua_pushstring(L, "__index");
 	lua_createtable(L, 0, 2);
 	luaL_register(L, NULL, ctx_methods);
-	lua_settable(L, 2);
+	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
 
 	luaL_newmetatable(L, "ub_cb");
