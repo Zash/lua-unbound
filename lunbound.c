@@ -53,10 +53,13 @@ int lub_new(lua_State* L) {
 	 */
 	lua_pushstring(L, "resolvconf");
 	lua_gettable(L, 1);
-	if(lua_isstring(L, -1))
-		ret = ub_ctx_resolvconf(*ctx, (char *)lua_tostring(L, -1));
-	else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+
+	if(lua_isstring(L, -1)) {
+		ret = ub_ctx_resolvconf(*ctx, (char*)lua_tostring(L, -1));
+	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
 		ret = ub_ctx_resolvconf(*ctx, 0);
+	}
+
 	/* else use root hits */
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
@@ -67,10 +70,13 @@ int lub_new(lua_State* L) {
 	 */
 	lua_pushstring(L, "hoststxt");
 	lua_gettable(L, 1);
-	if(lua_isstring(L, -1))
-		ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
-	else if(lua_isboolean(L, -1) && lua_toboolean(L, -1))
+
+	if(lua_isstring(L, -1)) {
+		ret = ub_ctx_hosts(*ctx, (char*)lua_tostring(L, -1));
+	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
 		ret = ub_ctx_hosts(*ctx, 0);
+	}
+
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
 
@@ -79,20 +85,24 @@ int lub_new(lua_State* L) {
 	 */
 	lua_pushstring(L, "trusted");
 	lua_gettable(L, 1);
+
 	if(lua_istable(L, -1)) {
 		lua_rawgeti(L, -1, i++);
+
 		while(ret == 0 && lua_isstring(L, -1)) {
-				ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
-				lua_pop(L, 1);
-				lua_rawgeti(L, -1, i++);
+			ret = ub_ctx_add_ta(*ctx, (char*)lua_tostring(L, -1));
+			lua_pop(L, 1);
+			lua_rawgeti(L, -1, i++);
 		}
+
 		lua_pop(L, 1);
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
-	}
-	else if(lua_isstring(L, -1))
-		ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
-	else if(!lua_isnil(L, -1))
+	} else if(lua_isstring(L, -1)) {
+		ret = ub_ctx_add_ta(*ctx, (char*)lua_tostring(L, -1));
+	} else if(!lua_isnil(L, -1)) {
 		luaL_argerror(L, 1, "'trust' must be string or array");
+	}
+
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 
 	lua_pop(L, 1);
@@ -160,6 +170,7 @@ static int lub_parse_result(lua_State* L, struct ub_result* result) {
 		lua_pushlstring(L, result->data[i], result->len[i]);
 		lua_rawseti(L, -2, ++i);
 	}
+
 	lua_pushinteger(L, i);
 	lua_setfield(L, -2, "n");
 
@@ -174,11 +185,13 @@ static int lub_resolve(lua_State* L) {
 	int rrtype = luaL_optint(L, 3, 1);
 	int rrclass = luaL_optint(L, 4, 1);
 	int ret = ub_resolve(*ctx, qname, rrtype, rrclass, &result);
+
 	if(ret != 0) {
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
+
 	return lub_parse_result(L, result);
 }
 
@@ -187,15 +200,19 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 	lua_State* L = my_data->L;
 	luaL_getmetatable(L, "ub_cb");
 	lua_rawgeti(L, -1, my_data->func_ref);
+
 	if(err != 0) {
 		lua_pushnil(L);
 	} else {
 		lub_parse_result(L, result);
 	}
+
 	lua_pushstring(L, ub_strerror(err));
+
 	if(lua_pcall(L, 2, 0, 0) != 0) {
 		lua_pop(L, 1); /* Ignore error */
 	}
+
 	luaL_unref(L, -1, my_data->func_ref);
 	luaL_unref(L, -1, my_data->self_ref);
 	lua_settop(L, 1);
@@ -227,6 +244,7 @@ static int lub_resolve_async(lua_State* L) {
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
+
 	lua_pushinteger(L, async_id);
 	return 1;
 }
@@ -235,11 +253,13 @@ static int lub_cancel(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	int async_id = luaL_checkint(L, 2);
 	int ret = ub_cancel(*ctx, async_id);
+
 	if(ret != 0) {
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
+
 	lua_pushinteger(L, async_id);
 	return 1;
 }
@@ -308,16 +328,16 @@ int luaopen_lunbound(lua_State* L) {
 
 	/* Defaults */
 	luaL_newmetatable(L, "ub_default_config");
-	 /* Threads enabled */
+	/* Threads enabled */
 	lua_pushboolean(L, 1);
 	lua_setfield(L, -2, "async");
-	 /* Use system resolv.conf */
+	/* Use system resolv.conf */
 	lua_pushboolean(L, 1);
 	lua_setfield(L, -2, "resolvconf");
-	 /* Use system hosts.txt */
+	/* Use system hosts.txt */
 	lua_pushboolean(L, 1);
 	lua_setfield(L, -2, "hoststxt");
-	 /* Hardcoded root */
+	/* Hardcoded root */
 	lua_pushstring(L, IANA_ROOT_TA);
 	lua_setfield(L, -2, "trusted");
 
