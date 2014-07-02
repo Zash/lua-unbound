@@ -1,3 +1,4 @@
+#!/bin/sh
 
 Module() {
 	echo "package.preload['$1'] = (function (...)"
