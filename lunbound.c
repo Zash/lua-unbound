@@ -24,8 +24,12 @@ int lub_new(lua_State* L) {
 	struct ub_ctx** ctx;
 
 	/* Load table with default config if none given. */
-	if(!lua_istable(L, 1)) {
+	if(lua_isnoneornil(L, 1)) {
+		lua_settop(L, 0);
 		luaL_getmetatable(L, "ub_default_config");
+	} else {
+		lua_settop(L, 1);
+		luaL_checktype(L, 1, LUA_TTABLE);
 	}
 
 	/* Create context and assign metatable. */
