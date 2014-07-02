@@ -40,8 +40,7 @@ int lub_new(lua_State* L) {
 	 * ["async"] = true  -- threads
 	 *           = false -- fork a process
 	 */
-	lua_pushstring(L, "async");
-	lua_gettable(L, 1);
+	lua_getfield(L, 1, "async");
 	ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
@@ -51,8 +50,7 @@ int lub_new(lua_State* L) {
 	 *                = true  -- Use resolvers set by OS
 	 *                = false -- Use root hints
 	 */
-	lua_pushstring(L, "resolvconf");
-	lua_gettable(L, 1);
+	lua_getfield(L, 1, "resolvconf");
 
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_resolvconf(*ctx, (char*)lua_tostring(L, -1));
@@ -68,8 +66,7 @@ int lub_new(lua_State* L) {
 	 * ["hoststxt"] = "/path/to/hosts.txt"
 	 *                = true  -- Use appropriate hosts.txt depending on OS
 	 */
-	lua_pushstring(L, "hoststxt");
-	lua_gettable(L, 1);
+	lua_getfield(L, 1, "hoststxt");
 
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_hosts(*ctx, (char*)lua_tostring(L, -1));
@@ -83,8 +80,7 @@ int lub_new(lua_State* L) {
 	/* List of trust anchors
 	 * ["trusted"] = ". IN DS ..." -- Single string or array of strings
 	 */
-	lua_pushstring(L, "trusted");
-	lua_gettable(L, 1);
+	lua_getfield(L, 1, "trusted");
 
 	if(lua_istable(L, -1)) {
 		lua_rawgeti(L, -1, i++);
