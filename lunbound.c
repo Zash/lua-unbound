@@ -68,7 +68,7 @@ int lub_new(lua_State* L) {
 
 	/* Path to hosts.txt
 	 * ["hoststxt"] = "/path/to/hosts.txt"
-	 *                = true  -- Use appropriate hosts.txt depending on OS
+	 *              = true  -- Use appropriate hosts.txt depending on OS
 	 */
 	lua_getfield(L, 1, "hoststxt");
 
