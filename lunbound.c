@@ -166,9 +166,11 @@ static int lub_parse_result(lua_State* L, struct ub_result* result) {
 	lua_pushinteger(L, result->rcode);
 	lua_setfield(L, -2, "rcode");
 
-	while(result->len[i] > 0) {
-		lua_pushlstring(L, result->data[i], result->len[i]);
-		lua_rawseti(L, -2, ++i);
+	if(result->havedata) {
+		while(result->len[i] > 0) {
+			lua_pushlstring(L, result->data[i], result->len[i]);
+			lua_rawseti(L, -2, ++i);
+		}
 	}
 
 	lua_pushinteger(L, i);
