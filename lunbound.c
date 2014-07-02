@@ -59,7 +59,7 @@ int lub_new(lua_State* L) {
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_resolvconf(*ctx, (char*)lua_tostring(L, -1));
 	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-		ret = ub_ctx_resolvconf(*ctx, 0);
+		ret = ub_ctx_resolvconf(*ctx, NULL);
 	}
 
 	/* else use root hits */
@@ -75,7 +75,7 @@ int lub_new(lua_State* L) {
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_hosts(*ctx, (char*)lua_tostring(L, -1));
 	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-		ret = ub_ctx_hosts(*ctx, 0);
+		ret = ub_ctx_hosts(*ctx, NULL);
 	}
 
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
