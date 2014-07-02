@@ -1,16 +1,17 @@
 
-all: use_unbound.lua lunbound.so
+CFLAGS+=-fPIC
+LDFLAGS+=-shared -lunbound
 
-lunbound.so: lunbound.o
-	$(LD) -o $@ $^ -shared -lunbound $(LDFLAGS)
+OUTPUT=use_unbound.lua lunbound.so
+all: $(OUTPUT)
 
 use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
 	./squish.sh > $@
 
-.c.o:
-	$(CC) -c -fPIC -o $@ $< $(CFLAGS)
+%.so: %.o
+	$(LD) $(LDFLAGS) -o $@ $^
 
 clean:
-	@rm -v lunbound.o lunbound.so use_unbound.lua
+	@rm -v $(OUTPUT)
 
 .PHONY: all
