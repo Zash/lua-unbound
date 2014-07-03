@@ -352,6 +352,7 @@ static luaL_Reg lub_lib_funcs[] = {
 
 int luaopen_lunbound(lua_State* L) {
 
+	/* Metatable for contexts */
 	luaL_newmetatable(L, "ub_ctx");
 	luaL_register(L, NULL, ctx_mt);
 	lua_createtable(L, 0, 2);
@@ -359,9 +360,11 @@ int luaopen_lunbound(lua_State* L) {
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
 
+	/* Table to keep callbacks in */
 	luaL_newmetatable(L, "ub_cb");
 	lua_pop(L, 1);
 
+	/* Main module table */
 	lua_createtable(L, 0, 1);
 	luaL_register(L, NULL, lub_lib_funcs);
 	lua_pushstring(L, ub_version());
