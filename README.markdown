@@ -181,7 +181,7 @@ complicated types, such as SOA, MX or SRV.
   various DNS parameters to string names.
 * `classes` and `types` map integer types to names and vice
   versa.
-* `errors` maps the `rcode` integer to an abbrevated error
+* `errors` maps the `rcode` integer to an abbreviated error
   name, and that name to a friendlier message.
 * Finally, `params` contain symbolic names for some record
   types.
