@@ -18,6 +18,10 @@ typedef struct {
 	int self_ref;
 } cb_data;
 
+/*
+ * Create a new context.
+ * Takes an optional single table with options as argument.
+ */
 int lub_new(lua_State* L) {
 	int ret;
 	int i = 1;
@@ -122,13 +126,18 @@ static int lub_ctx_tostring(lua_State* L) {
 	return 1;
 }
 
+/*
+ * Get FD to watch in for readability in your event loop
+ */
 static int lub_ctx_getfd(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_pushinteger(L, ub_fd(*ctx));
 	return 1;
 }
 
-/* Turns ub_result into table */
+/*
+ * Turns ub_result into table
+ */
 static int lub_parse_result(lua_State* L, struct ub_result* result) {
 	int i = 0;
 
@@ -180,6 +189,9 @@ static int lub_parse_result(lua_State* L, struct ub_result* result) {
 	return 1;
 }
 
+/*
+ * Perform an synchronous lookup
+ */
 static int lub_resolve(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	struct ub_result* result;
@@ -197,6 +209,9 @@ static int lub_resolve(lua_State* L) {
 	return lub_parse_result(L, result);
 }
 
+/*
+ * Callback for async queries
+ */
 void lub_callback(void* data, int err, struct ub_result* result) {
 	cb_data* my_data = (cb_data*)data;
 	lua_State* L = my_data->L;
@@ -220,6 +235,9 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 	lua_settop(L, 1);
 }
 
+/*
+ * Start an asynchronous lookup
+ */
 static int lub_resolve_async(lua_State* L) {
 	int ref, ret, async_id;
 	cb_data* my_data;
@@ -251,6 +269,9 @@ static int lub_resolve_async(lua_State* L) {
 	return 1;
 }
 
+/*
+ * Cancel a query using the id returned from resolve_async
+ */
 static int lub_cancel(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	int async_id = luaL_checkint(L, 2);
@@ -266,6 +287,9 @@ static int lub_cancel(lua_State* L) {
 	return 1;
 }
 
+/*
+ * Process all completed queries and call their callbacks
+ */
 static int lub_process(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_checkstack(L, 10);
@@ -273,24 +297,36 @@ static int lub_process(lua_State* L) {
 	return 0;
 }
 
+/*
+ * Wait for all queries to complete and call all callbacks
+ */
 static int lub_wait(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	ub_wait(*ctx);
 	return 0;
 }
 
+/*
+ * Check if context has new results to process
+ */
 static int lub_poll(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_pushboolean(L, ub_poll(*ctx));
 	return 1;
 }
 
+/*
+ * Context metatable
+ */
 static luaL_Reg ctx_mt[] = {
 	{"__gc", lub_ctx_destroy},
 	{"__tostring", lub_ctx_tostring},
 	{NULL, NULL}
 };
 
+/*
+ * Context methods
+ */
 static luaL_Reg ctx_methods[] = {
 	{"getfd", lub_ctx_getfd},
 	{"resolve", lub_resolve},
@@ -302,6 +338,9 @@ static luaL_Reg ctx_methods[] = {
 	{NULL, NULL}
 };
 
+/*
+ * Exported module functions
+ */
 static luaL_Reg lub_lib_funcs[] = {
 	{"new", lub_new},
 	{NULL, NULL}
