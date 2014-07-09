@@ -14,15 +14,11 @@ use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
 
 lunbound.o: lunbound.c iana_root_ta.h
 
-iana_root_ta.h: root-anchors.xml root-anchors.asc
+iana_root_ta.h:
+	$(WGET) http://data.iana.org/root-anchors/root-anchors.xml
+	$(WGET) http://data.iana.org/root-anchors/root-anchors.asc
 	gpg --verify root-anchors.asc root-anchors.xml
 	xsltproc root-anchors.xsl root-anchors.xml > $@
-
-root-anchors.xml:
-	$(WGET) http://data.iana.org/root-anchors/root-anchors.xml
-
-root-anchors.asc:
-	$(WGET) http://data.iana.org/root-anchors/root-anchors.asc
 
 %.so: %.o
 	$(LD) $(LDFLAGS) -o $@ $^
