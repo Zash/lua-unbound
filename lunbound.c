@@ -7,10 +7,9 @@
 #include <lauxlib.h>
 #include <unbound.h>
 
-/* Hardcoded root trust anchor ... I know
- * https://data.iana.org/root-anchors/root-anchors.xml
- */
-#define IANA_ROOT_TA ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5"
+#ifndef NO_ROOT_TA
+#include "iana_root_ta.h"
+#endif
 
 typedef struct {
 	struct lua_State* L;
@@ -381,9 +380,11 @@ int luaopen_lunbound(lua_State* L) {
 	/* Use system hosts.txt */
 	lua_pushboolean(L, 1);
 	lua_setfield(L, -2, "hoststxt");
+#ifdef IANA_ROOT_TA
 	/* Hardcoded root */
 	lua_pushstring(L, IANA_ROOT_TA);
 	lua_setfield(L, -2, "trusted");
+#endif
 
 	lua_setfield(L, -2, "config");
 
