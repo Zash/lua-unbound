@@ -70,8 +70,8 @@ local parsers = {};
 
 -- No support for pointers, but libunbound appears to take care of that.
 local function readDnsName(packet, pos)
-	local pack_len = #packet;
-	local r, pos, len = {}, pos or 1;
+	local pack_len, r, len = #packet, {};
+	pos = pos or 1;
 	repeat
 		len = s_byte(packet, pos) or 0;
 		t_insert(r, s_sub(packet, pos + 1, pos + len));
