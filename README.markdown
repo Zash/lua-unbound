@@ -49,8 +49,6 @@ Installation
 3. In the global section of your `prosody.cfg.lua`, add the following:
 
 		RunScript "use_unbound.lua"
-		resolvconf = "/etc/resolv.conf"
-		hoststxt = "/etc/hosts"
 
 4. Then start Prosody.  (Running under LuaJIT is left as an exercise.)
 5. If you have debug logging enabled, you should see logs from 'unbound' about
@@ -59,17 +57,15 @@ Installation
 Configuration
 -------------
 
-* `resolvconf` - string, filename
+The defaults should be sane, but should you wish to override them
+you can set options like this:
 
-  Optional, but recommended. Point to a file with a list of name
-  servers to use, such as `/etc/resolv.conf`.  If left out,
-  unbound will perform a full lookup from scratch from the DNS
-  roots.
+    unbound = {
+      resolvconf = "/etc/resolv.conf";
+    }
 
-* `hoststxt` - string, filename
+See *Creating a new context* below for more info.
 
-  Optional. Point to a file like /etc/hosts or similar. Note that
-  XMPP servers use SRV lookups first to know where to connect to.
 
 Modules
 -------

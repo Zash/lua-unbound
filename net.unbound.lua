@@ -14,7 +14,6 @@ local zero = function() return 0 end;
 local truop = function() return true; end;
 
 local log = require "util.logger".init("unbound");
-local config = require "core.configmanager";
 local server = require "net.server";
 local libunbound = require"util.lunbound";
 
@@ -23,14 +22,13 @@ local dns_utils = require"util.dns";
 local classes, types, errors = dns_utils.classes, dns_utils.types, dns_utils.errors;
 local parsers = dns_utils.parsers;
 
-local unbound_config = {
-	-- https://data.iana.org/root-anchors/root-anchors.xml
-	trusted = config.get("*", "unbound_ta") or
-		{ [[. IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5]] };
-	resolvconf = config.get("*", "resolvconf");
-	hoststxt = config.get("*", "hoststxt");
-	async = true;
-};
+local unbound_config;
+if prosody then
+	unbound_config = config.get("*", "unbound");
+	prosody.events.add_handler("config-reloaded", function()
+		unbound_config = config.get("*", "unbound");
+	end);
+end
 -- Note: libunbound will default to using root hints if resolvconf is unset
 
 local unbound = libunbound.new(unbound_config);
