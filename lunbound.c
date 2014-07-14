@@ -245,18 +245,23 @@ static int lub_resolve_async(lua_State* L) {
 	int rrtype = luaL_optint(L, 4, 1);
 	int rrclass = luaL_optint(L, 5, 1);
 	luaL_checktype(L, 2, LUA_TFUNCTION);
-	luaL_getmetatable(L, "ub_cb");
+
+	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
+	lua_replace(L, 1); /* Move it to the bottom of the stack */
+	lua_settop(L, 2); /* Drop everything above the callback */
+
+	/* Structure with reference to Lua state, callback and itself */
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
-	my_data->self_ref = luaL_ref(L, -2);
-	lua_pushvalue(L, 2);
-	ref = luaL_ref(L, -2);
-	my_data->func_ref = ref;
+	my_data->self_ref = luaL_ref(L, 1);
+	my_data->func_ref = luaL_ref(L, 1);
+
 	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &async_id);
 
 	if(ret != 0) {
-		luaL_unref(L, -1, my_data->func_ref);
-		luaL_unref(L, -1, my_data->self_ref);
+		luaL_unref(L, 1, my_data->func_ref);
+		luaL_unref(L, 1, my_data->self_ref);
+
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
