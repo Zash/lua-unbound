@@ -3,7 +3,8 @@
 .INTERMEDIATE: lunbound.o
 
 CFLAGS+=-fPIC
-LDFLAGS+=-shared -lunbound
+LDLIBS+=-lunbound
+LDFLAGS+=-shared
 WGET?=curl -O
 
 OUTPUT=use_unbound.lua lunbound.so
@@ -21,7 +22,7 @@ iana_root_ta.h:
 	xsltproc root-anchors.xsl root-anchors.xml > $@
 
 %.so: %.o
-	$(LD) $(LDFLAGS) -o $@ $^
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	@rm -v $(OUTPUT)
