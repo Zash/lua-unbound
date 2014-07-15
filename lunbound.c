@@ -238,7 +238,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
  * Start an asynchronous lookup
  */
 static int lub_resolve_async(lua_State* L) {
-	int ref, ret, async_id;
+	int ret, async_id;
 	cb_data* my_data;
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	char* qname = (char*)luaL_checkstring(L, 3);
