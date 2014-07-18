@@ -10,6 +10,10 @@ WGET?=curl -O
 OUTPUT=use_unbound.lua lunbound.so
 all: $(OUTPUT)
 
+paranoid:
+	-rm iana_root_ta.h
+	$(MAKE) all
+
 use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
 	./squish.sh > $@
 
