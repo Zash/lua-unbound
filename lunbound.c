@@ -31,8 +31,8 @@ int lub_new(lua_State* L) {
 		lua_settop(L, 0);
 		luaL_getmetatable(L, "ub_default_config");
 	} else {
-		lua_settop(L, 1);
 		luaL_checktype(L, 1, LUA_TTABLE);
+		lua_settop(L, 1);
 	}
 
 	/* Create context and assign metatable. */
