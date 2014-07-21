@@ -35,6 +35,9 @@ int lub_new(lua_State* L) {
 		lua_settop(L, 1);
 	}
 
+	/* Make sure there is room for 4 items on the stack */
+	luaL_checkstack(L, 3, NULL);
+
 	/* Create context and assign metatable. */
 	ctx = lua_newuserdata(L, sizeof(struct ub_ctx*));
 	*ctx = ub_ctx_create();
@@ -139,6 +142,8 @@ static int lub_ctx_getfd(lua_State* L) {
  */
 static int lub_parse_result(lua_State* L, struct ub_result* result) {
 	int i = 0;
+
+	luaL_checkstack(L, 2, NULL);
 
 	lua_createtable(L, 10, 12);
 
