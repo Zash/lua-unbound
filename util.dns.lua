@@ -96,12 +96,14 @@ function parsers.SOA(packet)
 	mname, offset = readDnsName(packet, 1);
 	rname, offset = readDnsName(packet, offset);
 
+	-- Extract all the bytes of these fields in one call
 	local
-		s1, s2, s3, s4,
-		r1, r2, r3, r4,
-		t1, t2, t3, t4,
-		e1, e2, e3, e4,
-		m1, m2, m3, m4 = s_byte(packet, offset, offset + 19);
+		s1, s2, s3, s4, -- serial
+		r1, r2, r3, r4, -- refresh
+		t1, t2, t3, t4, -- retry
+		e1, e2, e3, e4, -- expire
+		m1, m2, m3, m4  -- minimum
+			= s_byte(packet, offset, offset + 19);
 
 	return setmetatable({
 		mname = mname;
