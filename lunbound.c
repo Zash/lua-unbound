@@ -147,7 +147,7 @@ static int lub_parse_result(lua_State* L, struct ub_result* result) {
 
 	luaL_checkstack(L, 2, NULL);
 
-	lua_createtable(L, 10, 12);
+	lua_createtable(L, 8, 10);
 
 	lua_pushstring(L, result->qname);
 	lua_setfield(L, -2, "qname");
