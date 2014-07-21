@@ -285,7 +285,7 @@ static int lub_cancel(lua_State* L) {
 		return 2;
 	}
 
-	lua_pushinteger(L, async_id);
+	lua_pushboolean(L, 1);
 	return 1;
 }
 
