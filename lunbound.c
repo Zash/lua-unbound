@@ -227,13 +227,12 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 
 	if(err != 0) {
 		lua_pushnil(L);
+		lua_pushstring(L, ub_strerror(err));
 	} else {
 		lub_parse_result(L, result);
 	}
 
-	lua_pushstring(L, ub_strerror(err));
-
-	if(lua_pcall(L, 2, 0, 0) != 0) {
+	if(lua_pcall(L, err == 0 ? 1 : 2, 0, 0) != 0) {
 		lua_pop(L, 1); /* Ignore error */
 	}
 
