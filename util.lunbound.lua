@@ -115,8 +115,12 @@ function unbound.new(config)
 	end
 
 	if config.trusted then
-		for i=1,#config.trusted do
-			ub_ctx:add_ta(tochar(config.trusted[i]));
+		if type(config.trusted) == "string" then
+			ub_ctx:add_ta(tochar(config.trusted));
+		elseif type(config.trusted) == "table" then
+			for i=1,#config.trusted do
+				ub_ctx:add_ta(tochar(config.trusted[i]));
+			end
 		end
 	end
 
