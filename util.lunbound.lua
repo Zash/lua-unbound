@@ -91,7 +91,7 @@ local function parse_result(err, result)
 			i = i + 1; answer[i]  = data;
 		end
 	end
-	return answer, tostring(libunbound.ub_strerror(err));
+	return answer, ffi.string(libunbound.ub_strerror(err));
 end
 
 function unbound.new(config)
