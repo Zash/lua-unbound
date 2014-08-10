@@ -90,8 +90,9 @@ local function parse_result(err, result)
 			data = ffi.string(result[0].data[i], result[0].len[i]);
 			i = i + 1; answer[i]  = data;
 		end
+		return answer;
 	end
-	return answer, ffi.string(libunbound.ub_strerror(err));
+	return nil, ffi.string(libunbound.ub_strerror(err));
 end
 
 function unbound.new(config)
