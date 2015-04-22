@@ -260,8 +260,8 @@ static int lub_resolve_async(lua_State* L) {
 	/* Structure with reference to Lua state, callback and itself */
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
-	my_data->self_ref = luaL_ref(L, 1);
-	my_data->func_ref = luaL_ref(L, 1);
+	my_data->self_ref = luaL_ref(L, 1); /* pops the userdata */
+	my_data->func_ref = luaL_ref(L, 1); /* pops the callback function */
 
 	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &async_id);
 
