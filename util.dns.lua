@@ -9,11 +9,18 @@ local table = table;
 local t_concat = table.concat;
 local t_insert = table.insert;
 local s_byte = string.byte;
+local s_char = string.char;
 local s_format = string.format;
 local s_gsub = string.gsub;
 local s_sub = string.sub;
 local s_match = string.match;
 local s_gmatch = string.gmatch;
+
+local tohex = {};
+
+for c = 0, 255 do
+	tohex[s_char("%c", c)] = s_format("%02X", c);
+end
 
 -- Converted from
 -- http://www.iana.org/assignments/dns-parameters
@@ -91,7 +98,7 @@ local soa_mt = {
 	end
 };
 function parsers.SOA(packet)
-	local mname, rname, serial, refresh, retry, expire, minimum, offset;
+	local mname, rname, offset;
 
 	mname, offset = readDnsName(packet, 1);
 	rname, offset = readDnsName(packet, offset);
@@ -136,8 +143,8 @@ function parsers.AAAA(packet)
 end
 
 local mx_mt = {
-	__tostring = function(t)
-		return s_format("%d %s", t.pref, t.mx)
+	__tostring = function(rr)
+		return s_format("%d %s", rr.pref, rr.mx)
 	end
 };
 function parsers.MX(packet)
@@ -150,8 +157,8 @@ function parsers.MX(packet)
 end
 
 local srv_mt = {
-	__tostring = function(t)
-		return s_format("%d %d %d %s", t.priority, t.weight, t.port, t.target);
+	__tostring = function(rr)
+		return s_format("%d %d %d %s", rr.priority, rr.weight, rr.port, rr.target);
 	end
 };
 function parsers.SRV(packet)
@@ -179,7 +186,6 @@ end
 
 parsers.SPF = parsers.TXT;
 
-local tohex = function(c) return s_format("%02X", s_byte(c)) end
 -- Acronyms from RFC 7218
 local tlsa_usages = {
 	[0] = "PKIX-CA",
@@ -200,13 +206,13 @@ local tlsa_match_types = {
 	[255] = "PrivMatch",
 };
 local tlsa_mt = {
-	__tostring = function(t)
-		return s_format("%s %s %s %s", tlsa_usages[t.use] or t.use, tlsa_selectors[t.select] or t.select, tlsa_match_types[t.match] or t.match, s_gsub(t.data, ".", tohex));
+	__tostring = function(rr)
+		return s_format("%s %s %s %s", tlsa_usages[rr.use] or rr.use, tlsa_selectors[rr.select] or rr.select, tlsa_match_types[rr.match] or rr.match, s_gsub(rr.data, ".", tohex));
 	end;
 	__index = {
-		getUsage = function(t) return tlsa_usages[t.use] end;
-		getSelector = function(t) return tlsa_selectors[t.select] end;
-		getMatchType = function(t) return tlsa_match_types[t.match] end;
+		getUsage = function(rr) return tlsa_usages[rr.use] end;
+		getSelector = function(rr) return tlsa_selectors[rr.select] end;
+		getMatchType = function(rr) return tlsa_match_types[rr.match] end;
 	}
 };
 function parsers.TLSA(packet)
@@ -228,8 +234,8 @@ local params = {
 };
 
 local fallback_mt = {
-	__tostring = function(t)
-		return s_format([[\# %d %s]], #t.raw, s_gsub(t.raw, ".", tohex));
+	__tostring = function(rr)
+		return s_format([[\# %d %s]], #rr.raw, s_gsub(rr.raw, ".", tohex));
 	end;
 };
 local function fallback_parser(packet)

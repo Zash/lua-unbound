@@ -14,7 +14,7 @@ local zero = function() return 0 end;
 local truop = function() return true; end;
 
 local log = require "util.logger".init("unbound");
-local server = require "net.server";
+local net_server = require "net.server";
 local libunbound = require"util.lunbound";
 
 local gettime = require"socket".gettime;
@@ -24,14 +24,13 @@ local parsers = dns_utils.parsers;
 
 local unbound_config;
 if prosody then
+	local config = require"core.configmanager";
 	unbound_config = config.get("*", "unbound");
 	prosody.events.add_handler("config-reloaded", function()
 		unbound_config = config.get("*", "unbound");
 	end);
 end
 -- Note: libunbound will default to using root hints if resolvconf is unset
-
-local unbound = libunbound.new(unbound_config);
 
 local function connect_server(unbound, server)
 	if server.event and server.addevent then
@@ -50,6 +49,7 @@ local function connect_server(unbound, server)
 			send = zero,
 			receive = noop,
 			settimeout = noop,
+			close = truop,
 		}
 
 		local function process()
@@ -66,7 +66,9 @@ local function connect_server(unbound, server)
 	end
 end
 
-local server_conn = connect_server(unbound, server);
+local unbound = libunbound.new(unbound_config);
+
+local server_conn = connect_server(unbound, net_server);
 
 local answer_mt = {
 	__tostring = function(self)
@@ -117,23 +119,28 @@ local function lookup(callback, qname, qtype, qclass)
 	qclass = qclass and s_upper(qclass) or "IN";
 	local ntype, nclass = types[qtype], classes[qclass];
 	local startedat = gettime();
-	local ok, err;
+	local ret;
 	local function callback_wrapper(a, err)
 		local gotdataat = gettime();
-		waiting_queries[ok] = nil;
-		prep_answer(a);
-		log("debug", "Results for %s %s %s: %s (%s, %f sec)", qname, qclass, qtype, a.rcode == 0 and (#a .. " items") or a.status,
-			a.secure and "Secure" or a.bogus or "Insecure", gotdataat - startedat); -- Insecure as in unsigned
+		waiting_queries[ret] = nil;
+		if a then
+			prep_answer(a);
+			log("debug", "Results for %s %s %s: %s (%s, %f sec)", qname, qclass, qtype, a.rcode == 0 and (#a .. " items") or a.status,
+				a.secure and "Secure" or a.bogus or "Insecure", gotdataat - startedat); -- Insecure as in unsigned
+		else
+			log("error", "Results for %s %s %s: %s", qname, qclass, qtype, tostring(err));
+		end
 		return callback(a, err);
 	end
 	log("debug", "Resolve %s %s %s", qname, qclass, qtype);
-	ok, err = unbound:resolve_async(callback_wrapper, qname, ntype, nclass);
-	if ok then
-		waiting_queries[ok] = callback;
+	local err;
+	ret, err = unbound:resolve_async(callback_wrapper, qname, ntype, nclass);
+	if ret then
+		waiting_queries[ret] = callback;
 	else
 		log("warn", err);
 	end
-	return ok, err;
+	return ret, err;
 end
 
 local function cancel(id)
@@ -155,7 +162,7 @@ local function purge()
 		server_conn:close();
 	end
 	unbound = libunbound.new(unbound_config);
-	server_conn = connect_server(unbound, server);
+	server_conn = connect_server(unbound, net_server);
 	return true;
 end
 

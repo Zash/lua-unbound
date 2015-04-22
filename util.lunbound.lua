@@ -136,8 +136,8 @@ end
 
 function context:resolve_async(callback, name, rrtype, rrclass)
 	local query_id = ffi.new("int[1]");
-	local function l_callback(self, err, result)
-		ffi.cast("ub_callback_t", self):free();
+	local function l_callback(t, err, result)
+		ffi.cast("ub_callback_t", t):free();
 		callback(parse_result(err, result));
 	end
 	local ub_callback_t = ffi.cast("ub_callback_t", l_callback);
