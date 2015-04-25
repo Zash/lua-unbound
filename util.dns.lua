@@ -93,8 +93,8 @@ parsers.NS = readDnsName
 parsers.PTR = readDnsName;
 
 local soa_mt = {
-	__tostring = function(t)
-		return s_format("%s %s %d %d %d %d %d", t.mname, t.rname, t.serial, t.refresh, t.retry, t.expire, t.minimum);
+	__tostring = function(rr)
+		return s_format("%s %s %d %d %d %d %d", rr.mname, rr.rname, rr.serial, rr.refresh, rr.retry, rr.expire, rr.minimum);
 	end
 };
 function parsers.SOA(packet)
@@ -127,14 +127,14 @@ function parsers.A(packet)
 	return s_format("%d.%d.%d.%d", s_byte(packet, 1, 4));
 end
 
-local t = { nil, nil, nil, nil, nil, nil, nil, nil, };
+local aaaa = { nil, nil, nil, nil, nil, nil, nil, nil, };
 function parsers.AAAA(packet)
 	local hi, lo, ip, len, token;
 	for i=1,8 do
 		hi, lo = s_byte(packet, i*2-1, i*2);
-		t[i] = s_format("%x", hi*256+lo); -- skips leading zeros
+		aaaa[i] = s_format("%x", hi*256+lo); -- skips leading zeros
 	end
-	ip = t_concat(t, ":", 1, 8);
+	ip = t_concat(aaaa, ":", 1, 8);
 	len = (s_match(ip, "^0:[0:]+()") or 1) - 1;
 	for s in s_gmatch(ip, ":0:[0:]+") do
 		if len < #s then len,token = #s,s; end -- find longest sequence of zeros
