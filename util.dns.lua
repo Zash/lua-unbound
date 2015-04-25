@@ -16,10 +16,14 @@ local s_sub = string.sub;
 local s_match = string.match;
 local s_gmatch = string.gmatch;
 
-local tohex = {};
+local chartohex = {};
 
 for c = 0, 255 do
-	tohex[s_char("%c", c)] = s_format("%02X", c);
+	chartohex[s_char("%c", c)] = s_format("%02X", c);
+end
+
+local function tohex(s)
+	return (s_gsub(s, ".", chartohex));
 end
 
 -- Converted from
@@ -207,7 +211,7 @@ local tlsa_match_types = {
 };
 local tlsa_mt = {
 	__tostring = function(rr)
-		return s_format("%s %s %s %s", tlsa_usages[rr.use] or rr.use, tlsa_selectors[rr.select] or rr.select, tlsa_match_types[rr.match] or rr.match, s_gsub(rr.data, ".", tohex));
+		return s_format("%s %s %s %s", tlsa_usages[rr.use] or rr.use, tlsa_selectors[rr.select] or rr.select, tlsa_match_types[rr.match] or rr.match, tohex(rr.data));
 	end;
 	__index = {
 		getUsage = function(rr) return tlsa_usages[rr.use] end;
@@ -235,7 +239,7 @@ local params = {
 
 local fallback_mt = {
 	__tostring = function(rr)
-		return s_format([[\# %d %s]], #rr.raw, s_gsub(rr.raw, ".", tohex));
+		return s_format([[\# %d %s]], #rr.raw, tohex(rr.raw));
 	end;
 };
 local function fallback_parser(packet)
