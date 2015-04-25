@@ -202,8 +202,8 @@ static int lub_resolve(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	struct ub_result* result;
 	char* qname = (char*)luaL_checkstring(L, 2);
-	int rrtype = luaL_optint(L, 3, 1);
-	int rrclass = luaL_optint(L, 4, 1);
+	int rrtype = luaL_optinteger(L, 3, 1);
+	int rrclass = luaL_optinteger(L, 4, 1);
 	int ret = ub_resolve(*ctx, qname, rrtype, rrclass, &result);
 	lua_settop(L, 0);
 
@@ -249,8 +249,8 @@ static int lub_resolve_async(lua_State* L) {
 	cb_data* my_data;
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	char* qname = (char*)luaL_checkstring(L, 3);
-	int rrtype = luaL_optint(L, 4, 1);
-	int rrclass = luaL_optint(L, 5, 1);
+	int rrtype = luaL_optinteger(L, 4, 1);
+	int rrclass = luaL_optinteger(L, 5, 1);
 	luaL_checktype(L, 2, LUA_TFUNCTION);
 
 	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
@@ -283,7 +283,7 @@ static int lub_resolve_async(lua_State* L) {
  */
 static int lub_cancel(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	int async_id = luaL_checkint(L, 2);
+	int async_id = luaL_checkinteger(L, 2);
 	int ret = ub_cancel(*ctx, async_id);
 
 	if(ret != 0) {
