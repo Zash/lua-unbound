@@ -355,17 +355,17 @@ static luaL_Reg lub_lib_funcs[] = {
 	{NULL, NULL}
 };
 
-#if (LUA_VERSION_NUM == 502)
-#define luaL_register(L, N, R) luaL_setfuncs(L, R, 0)
+#if (LUA_VERSION_NUM == 501)
+#define luaL_setfuncs(L, R, N) luaL_register(L, NULL, R)
 #endif
 
 int luaopen_lunbound(lua_State* L) {
 
 	/* Metatable for contexts */
 	luaL_newmetatable(L, "ub_ctx");
-	luaL_register(L, NULL, ctx_mt);
+	luaL_setfuncs(L, ctx_mt, 0);
 	lua_createtable(L, 0, 2);
-	luaL_register(L, NULL, ctx_methods);
+	luaL_setfuncs(L, ctx_methods, 0);
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
 
@@ -375,7 +375,7 @@ int luaopen_lunbound(lua_State* L) {
 
 	/* Main module table */
 	lua_createtable(L, 0, 1);
-	luaL_register(L, NULL, lub_lib_funcs);
+	luaL_setfuncs(L, lub_lib_funcs, 0);
 	lua_pushstring(L, ub_version());
 	lua_setfield(L, -2, "_LIBVER");
 
