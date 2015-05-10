@@ -1,5 +1,5 @@
 -- libunbound based net.adns replacement for Prosody IM
--- Copyright (C) 2012-2014 Kim Alvefur
+-- Copyright (C) 2012-2015 Kim Alvefur
 -- Copyright (C) 2012 Waqas Hussain
 --
 -- This file is MIT/X11 licensed.
