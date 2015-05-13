@@ -19,7 +19,7 @@ local s_gmatch = string.gmatch;
 local chartohex = {};
 
 for c = 0, 255 do
-	chartohex[s_char("%c", c)] = s_format("%02X", c);
+	chartohex[s_char(c)] = s_format("%02X", c);
 end
 
 local function tohex(s)
