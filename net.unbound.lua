@@ -143,6 +143,14 @@ local function lookup(callback, qname, qtype, qclass)
 	return ret, err;
 end
 
+local function lookup_sync(qname, qtype, qclass)
+	qtype = qtype and s_upper(qtype) or "A";
+	qclass = qclass and s_upper(qclass) or "IN";
+	local ntype, nclass = types[qtype], classes[qclass];
+	local a, err = unbound:resolve(qname, ntype, nclass);
+	return prep_answer(a), err;
+end
+
 local function cancel(id)
 	local cb = waiting_queries[id];
 	unbound:cancel(id);
@@ -175,6 +183,7 @@ return {
 	cancel = cancel;
 	new_async_socket = not_implemented;
 	dns = {
+		lookup = lookup_sync;
 		cancel = cancel;
 		cache = noop;
 		socket_wrapper_set = noop;
