@@ -2,6 +2,8 @@
 -- Copyright (C) 2013-2015 Kim Alvefur
 --
 -- This file is MIT/X11 licensed.
+--
+-- luacheck: ignore prosody
 
 local setmetatable = setmetatable;
 local tostring = tostring;
