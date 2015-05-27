@@ -150,7 +150,8 @@ local function lookup_sync(qname, qtype, qclass)
 	qclass = qclass and s_upper(qclass) or "IN";
 	local ntype, nclass = types[qtype], classes[qclass];
 	local a, err = unbound:resolve(qname, ntype, nclass);
-	return prep_answer(a), err;
+	if not a then return a, err; end
+	return prep_answer(a);
 end
 
 local function cancel(id)
