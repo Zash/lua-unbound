@@ -8,6 +8,9 @@ LDFLAGS+=-shared
 WGET?=curl -O
 
 OUTPUT=use_unbound.lua lunbound.so
+
+default: lunbound.so
+prosody: use_unbound.lua
 all: $(OUTPUT)
 
 paranoid:
