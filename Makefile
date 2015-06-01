@@ -7,6 +7,10 @@ LDLIBS+=-lunbound
 LDFLAGS+=-shared
 WGET?=curl -O
 
+LUA_VERSION=5.1
+LUA_DIR=/usr/local
+LUA_LIBDIR=$(LUA_DIR)/lib/lua/$(LUA_VERSION)
+
 OUTPUT=use_unbound.lua lunbound.so
 
 default: lunbound.so
@@ -30,6 +34,12 @@ iana_root_ta.h:
 
 %.so: %.o
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+install:
+	install -m644 lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
+
+install-prosody: install
+	install -m644 use_unbound.lua $(DESTDIR)/etc/prosody/
 
 clean:
 	@rm -v $(OUTPUT)
