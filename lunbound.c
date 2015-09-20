@@ -123,7 +123,6 @@ static int lub_ctx_destroy(lua_State* L) {
 
 static int lub_ctx_tostring(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 0);
 	lua_pushfstring(L, "ub_ctx: %p", ctx);
 	return 1;
 }
@@ -133,7 +132,6 @@ static int lub_ctx_tostring(lua_State* L) {
  */
 static int lub_ctx_getfd(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 0);
 	lua_pushinteger(L, ub_fd(*ctx));
 	return 1;
 }
@@ -204,7 +202,6 @@ static int lub_resolve(lua_State* L) {
 	int rrtype = luaL_optinteger(L, 3, 1);
 	int rrclass = luaL_optinteger(L, 4, 1);
 	int ret = ub_resolve(*ctx, qname, rrtype, rrclass, &result);
-	lua_settop(L, 0);
 
 	if(ret != 0) {
 		lua_pushnil(L);
@@ -324,7 +321,7 @@ static int lub_cancel(lua_State* L) {
  */
 static int lub_process(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 0);
+	lua_settop(L, 1);
 	ub_process(*ctx);
 	return 0;
 }
