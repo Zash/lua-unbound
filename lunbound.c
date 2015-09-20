@@ -305,6 +305,16 @@ static int lub_cancel(lua_State* L) {
 		return 2;
 	}
 
+	luaL_getmetatable(L, "ub_queries");
+	lua_pushnil(L);
+	lua_rawseti(L, -2, async_id); /* ub_queries[async_id] = nil */
+	lua_pop(L, 1);
+
+	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
+	lua_pushnil(L);
+	lua_rawseti(L, -2, async_id); /* ub_cb[async_id] = nil */
+	lua_pop(L, 1);
+
 	lua_pushboolean(L, 1);
 	return 1;
 }
