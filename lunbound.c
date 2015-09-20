@@ -13,8 +13,7 @@
 
 typedef struct {
 	struct lua_State* L;
-	int func_ref;
-	int self_ref;
+	int async_id;
 } cb_data;
 
 /*
@@ -222,8 +221,17 @@ static int lub_resolve(lua_State* L) {
 void lub_callback(void* data, int err, struct ub_result* result) {
 	cb_data* my_data = (cb_data*)data;
 	lua_State* L = my_data->L;
+
+	/* remove query and callback from registry */
+	luaL_getmetatable(L, "ub_queries");
+	lua_pushnil(L);
+	lua_rawseti(L, -2, my_data->async_id); /* ub_queries[async_id] = nil */
+	lua_pop(L, 1);
+
 	luaL_getmetatable(L, "ub_cb");
-	lua_rawgeti(L, -1, my_data->func_ref);
+	lua_rawgeti(L, -1, my_data->async_id);
+	lua_pushnil(L);
+	lua_rawseti(L, -3, my_data->async_id); /* ub_cb[async_id] = nil */
 
 	if(err != 0) {
 		lua_pushnil(L);
@@ -236,9 +244,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 		lua_pop(L, 1); /* Ignore error */
 	}
 
-	luaL_unref(L, -1, my_data->func_ref);
-	luaL_unref(L, -1, my_data->self_ref);
-	lua_settop(L, 0);
+	lua_pop(L, 1); /* ub_cb */
 }
 
 /*
@@ -257,28 +263,31 @@ static int lub_resolve_async(lua_State* L) {
 	rrtype = luaL_optinteger(L, 4, 1);
 	rrclass = luaL_optinteger(L, 5, 1);
 
-	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
-	lua_replace(L, 1); /* Move it to the bottom of the stack */
-	lua_settop(L, 2); /* Drop everything above the callback */
+	lua_settop(L, 2);
 
-	/* Structure with reference to Lua state, callback and itself */
+	/* Structure with reference to Lua state */
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
-	my_data->self_ref = luaL_ref(L, 1); /* pops the userdata */
-	my_data->func_ref = luaL_ref(L, 1); /* pops the callback function */
 
-	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &async_id);
+	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &my_data->async_id);
 
 	if(ret != 0) {
-		luaL_unref(L, 1, my_data->func_ref);
-		luaL_unref(L, 1, my_data->self_ref);
-
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
 
-	lua_pushinteger(L, async_id);
+	luaL_getmetatable(L, "ub_queries");
+	lua_pushvalue(L, 3); /* the cb_data userdata */
+	lua_rawseti(L, 4, my_data->async_id); /* ub_queries[async_id] = cb_data */
+	lua_pop(L, 1);
+
+	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
+	lua_pushvalue(L, 2); /* the callback */
+	lua_rawseti(L, 4, my_data->async_id); /* ub_queries[async_id] = cb_data */
+	lua_pop(L, 1);
+
+	lua_pushinteger(L, my_data->async_id);
 	return 1;
 }
 
@@ -375,6 +384,10 @@ int luaopen_lunbound(lua_State* L) {
 
 	/* Table to keep callbacks in */
 	luaL_newmetatable(L, "ub_cb");
+	lua_pop(L, 1);
+
+	/* Table to keep map of async_id to callbacks */
+	luaL_newmetatable(L, "ub_queries");
 	lua_pop(L, 1);
 
 	/* Main module table */
