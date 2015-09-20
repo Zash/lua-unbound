@@ -245,13 +245,17 @@ void lub_callback(void* data, int err, struct ub_result* result) {
  * Start an asynchronous lookup
  */
 static int lub_resolve_async(lua_State* L) {
-	int ret, async_id;
+	int ret, rrtype, rrclass;
+	char* qname;
 	cb_data* my_data;
-	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
-	char* qname = (char*)luaL_checkstring(L, 3);
-	int rrtype = luaL_optinteger(L, 4, 1);
-	int rrclass = luaL_optinteger(L, 5, 1);
+	struct ub_ctx** ctx;
+
+	/* ub_ctx:resolve_async(callback, "example.net", rrtype, rrclass) */
+	ctx = luaL_checkudata(L, 1, "ub_ctx");
 	luaL_checktype(L, 2, LUA_TFUNCTION);
+	qname = (char*)luaL_checkstring(L, 3);
+	rrtype = luaL_optinteger(L, 4, 1);
+	rrclass = luaL_optinteger(L, 5, 1);
 
 	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
 	lua_replace(L, 1); /* Move it to the bottom of the stack */
