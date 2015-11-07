@@ -266,7 +266,9 @@ static int lub_resolve_async(lua_State* L) {
 	my_data = (cb_data*)lua_newuserdata(L, sizeof(cb_data));
 	my_data->L = L;
 
-	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback, &my_data->async_id);
+	/* Start the query */
+	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback,
+	                       &my_data->async_id);
 
 	if(ret != 0) {
 		lua_pushnil(L);
@@ -275,12 +277,12 @@ static int lub_resolve_async(lua_State* L) {
 	}
 
 	luaL_getmetatable(L, "ub_queries");
-	lua_pushvalue(L, 3); /* the cb_data userdata */
+	lua_pushvalue(L, 3);                  /* the cb_data userdata */
 	lua_rawseti(L, 4, my_data->async_id); /* ub_queries[async_id] = cb_data */
 	lua_pop(L, 1);
 
-	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
-	lua_pushvalue(L, 2); /* the callback */
+	luaL_getmetatable(L, "ub_cb");        /* Get the callback registry */
+	lua_pushvalue(L, 2);                  /* the callback */
 	lua_rawseti(L, 4, my_data->async_id); /* ub_queries[async_id] = cb_data */
 	lua_pop(L, 1);
 
@@ -322,7 +324,7 @@ static int lub_cancel(lua_State* L) {
 static int lub_process(lua_State* L) {
 	struct ub_ctx** ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_settop(L, 1);
-	ub_process(*ctx);
+	ub_process(*ctx); /* calls lub_callback for each completed query */
 	return 0;
 }
 
