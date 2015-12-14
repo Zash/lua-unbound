@@ -36,6 +36,7 @@ iana_root_ta.h:
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
+	install -d $(DESTDIR)$(LUA_LIBDIR)/
 	install -m644 lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
 
 install-prosody: install
