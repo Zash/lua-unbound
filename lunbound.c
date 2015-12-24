@@ -108,6 +108,24 @@ int lub_new(lua_State* L) {
 		luaL_argerror(L, 1, "'trusted' must be string or array");
 	}
 
+	/* Table of libunbound options
+	 */
+	lua_getfield(L, 1, "options");
+
+	if(lua_istable(L, -1)) {
+		lua_pushnil(L);
+
+		while(lua_next(L, -2) != 0) {
+			ret = ub_ctx_set_option(*ctx, (char*)lua_tostring(L, -2), (char*)lua_tostring(L, -1));
+			luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+			lua_pop(L, 1);
+		}
+	} else if(!lua_isnil(L, -1)) {
+		luaL_argerror(L, 1, "'options' must be string or array");
+	}
+
+	lua_pop(L, 1); /* options table */
+
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 
 	lua_pop(L, 1);
