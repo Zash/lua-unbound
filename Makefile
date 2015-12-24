@@ -39,7 +39,8 @@ install:
 	install -d $(DESTDIR)$(LUA_LIBDIR)/
 	install -m644 lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
 
-install-prosody: install
+install-prosody:
+	install -m644 lunbound.so $(DESTDIR)/usr/lib/prosody/util/
 	install -m644 use_unbound.lua $(DESTDIR)/etc/prosody/
 
 clean:
