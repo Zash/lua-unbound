@@ -7,58 +7,62 @@ binding to libunbound.
 Why use it
 ----------
 
-This module can be used with [`mod_s2s_auth_dane`][daneplugin] to support secure
-delegation and for [DANE][].
+This module can be used with
+[`mod_s2s_auth_dane`](http://modules.prosody.im/mod_s2s_auth_dane.html)
+to support secure delegation and for
+[DANE](http://tools.ietf.org/html/rfc6698).
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
 
 Downloading
 -----------
 
-Source can be downloaded with mercurial from <http://code.zash.se/luaunbound/>.
+Source can be downloaded with mercurial from
+<http://code.zash.se/luaunbound/>.
 
 Dependencies
 ------------
 
-* Required
-  * libunbound
-* Optional
-  * LuaJIT 2
-* Build-time (not required with LuaJIT)
-  * Lua headers
-  * libunbound headers
+-   Required
+    -   libunbound
+-   Optional
+    -   LuaJIT 2
+-   Build-time (not required with LuaJIT)
+    -   Lua headers
+    -   libunbound headers
 
 Building
 --------
 
-`./squish.sh > use_unbound.lua`
+    ./squish.sh > use_unbound.lua
 
 To build the C module (can be skipped if running under LuaJIT):
 
-  make
+    make
 
 Installation
 ------------
 
-1. Put `use_unbound.lua` in `/etc/prosody` or where your `prosody.cfg.lua` lives.
+1.  Put `use_unbound.lua` in `/etc/prosody` or where your
+    `prosody.cfg.lua` lives.
 
-2. Install the C module (can be skipped if running under LuaJIT):
+2.  Install the C module (can be skipped if running under LuaJIT):
 
     sudo install lunbound.so /path/to/prosody/util/
 
-3. In the global section of your `prosody.cfg.lua`, add the following:
+3.  In the global section of your `prosody.cfg.lua`, add the following:
 
-		RunScript "use_unbound.lua"
+    RunScript "use\_unbound.lua"
 
-4. Then start Prosody.  (Running under LuaJIT is left as an exercise.)
-5. If you have debug logging enabled, you should see logs from 'unbound' about
-  lookups performed.
+4.  Then start Prosody. (Running under LuaJIT is left as an exercise.)
+5.  If you have debug logging enabled, you should see logs from
+    'unbound' about lookups performed.
 
 Configuration
 -------------
 
-The defaults should be sane, but should you wish to override them
-you can set options like this:
+The defaults should be sane, but should you wish to override them you
+can set options like this:
 
     unbound = {
       resolvconf = "/etc/resolv.conf";
@@ -66,21 +70,17 @@ you can set options like this:
 
 See *Creating a new context* below for more info.
 
-
 Modules
 -------
 
-* `net.unbound`
+`net.unbound`
+:   API-compatible with prosodys `net.adns` DNS library.
 
-  API-compatible with prosodys `net.adns` DNS library.
+`util.lunbound`
+:   The module that wraps libunbound.
 
-* `util.lunbound`
-
-  The module that wraps libunbound.
-
-* `util.dns`
-
-  DNS parsing library.
+`util.dns`
+:   DNS parsing library.
 
 util.lunbound API
 -----------------
@@ -88,106 +88,113 @@ util.lunbound API
 ### Creating a new context
 
 The lunbound module has a single function, `new()` for creating a new
-context.  It takes a table with configuration as single optional
-argument.  If no argument is given the `config` table on the module will
+context. It takes a table with configuration as single optional
+argument. If no argument is given the `config` table on the module will
 be used.
 
 ### Config options
 
-* `async`: Uses threads if `true` or forks a process if `false`.
-* `hoststxt`: Path to `hosts.txt` file.  If set to `true` then the
-  default system `hosts.txt` file.
-* `resolvconf`: Path to resolver configuration.  If set to `true` then
-  the default system resolvers are used.  Otherwise root hints are used.
-* `trusted`: DNSSEC root trust anchors, a string or array of strings.
-  Defaults to hard-coded IANA root anchors.
+`async`
+:   Uses threads if `true` or forks a process if `false`.
+
+`hoststxt`
+:   Path to `hosts.txt` file. If set to `true` then the default system
+    `hosts.txt` file.
+
+`resolvconf`
+:   Path to resolver configuration. If set to `true` then the default
+    system resolvers are used. Otherwise root hints are used.
+
+`trusted`
+:   DNSSEC root trust anchors, a string or array of strings. Defaults to
+    hard-coded IANA root anchors.
+
+So the defaults as follows:
+
+``` {.lua}
+local resolver = require"luaunbound".new({
+    async = true;
+    hoststxt = true;
+    resolvconf = true;
+    trusted = {
+        ". IN DS 19036 8 2 49AAC..."
+    }
+});
+```
 
 ### Context methods
 
-* `ctx:resolve(name, type, class)`
+`ctx:resolve(name, type, class)`
+:   Resolves name and returns a table with results.
 
-  Resolves name and returns a table with results.
+`ctx:resolve_async(callback, name, type, class)`
+:   Starts a query in async mode. Results are passed to the callback
+    when the query is completed.
 
-* `ctx:resolve_async(callback, name, type, class)`
+`ctx:fd()`
+:   Returns a file descriptor that will appear readable when there are
+    results available.
 
-  Starts a query in async mode.  Results are passed to the
-  callback when the query is completed.
+`ctx:process()`
+:   Calls callbacks for all completed queries.
 
-* `ctx:fd()`
+`ctx:wait()`
+:   Blocks until all outstanding queries are completed and then calls
+    callbacks for all completed queries.
 
-  Returns a file descriptor that will appear readable when there
-  are results available.
-
-* `ctx:process()`
-
-  Calls callbacks for all completed queries.
-
-* `ctx:wait()`
-
-  Blocks until all outstanding queries are completed and then
-  calls callbacks for all completed queries.
-
-* `ctx:poll()`
-
-  Returns `true` if new results are available.
+`ctx:poll()`
+:   Returns `true` if new results are available.
 
 ### Result table
 
 The result table closely resembles libunbounds result struct.
 
-* `qname`, `qtype` and `qclass`
+`qname`, `qtype` and `qclass`
+:   Same as arguments to resolve methods.
 
-  Same as arguments to resolve methods.
+`canonname`
+:   The canonical name if the queried name was a CNAME. Note that full
+    CNAME chasing is done by libunbound.
 
-* `canonname`
+`rcode`, `havedata` and `nxdomain`
+:   The DNS status code and flags indicating if any data is available.
 
-  The canonical name if the queried name was a CNAME.  Note that
-  full CNAME chasing is done by libunbound.
+`secure` and `bogus`
 
-* `rcode`, `havedata` and `nxdomain`
+:   Indicates DNSSEC validation status. There are three possible
+    combinations:
 
-  The DNS status code and flags indicating if any data is available.
+    -   Results are signed and validation succeeded, `secure` will be
+        `true`.
+    -   Results are signed but validation failed, `secure` will be
+        `false` and `bogus` will be a string with an error message.
+    -   The results were not signed. `secure` will be `false` and
+        `bogus` will be `nil`.
 
-* `secure` and `bogus`
-
-  Indicates DNSSEC validation status.  There are three possible combinations:
-
-  * Results are signed and validation succeeded, `secure`
-    will be `true`.
-  * Results are signed but validation failed, `secure` will
-    be `false` and `bogus` will be a string with an error
-    message.
-  * The results were not signed.  `secure` will be `false`
-    and `bogus` will be `nil`.
-
-* The actual result data will be in the array part of the result table,
-  in the form of binary strings.  Use `util.dns` to parse them into
-  something usable.
+The actual result data will be in the array part of the result table, in
+the form of binary strings. Use `util.dns` to parse them into something
+usable.
 
 util.dns API
 ------------
 
 The most interesting part of `util.dns` is probably the RR parsers,
-available in the `parsers` table on the module.  For example, to parse
-an A record, `dns.parsers.A(data)` returns a formatted IPv4 address.
+available in the `parsers` table on the module. For example, to parse an
+A record, `dns.parsers.A(data)` returns a formatted IPv4 address.
 Parsers return either a string for simple types or a table for more
 complicated types, such as SOA, MX or SRV.
 
-* The `classes`, `types`, `errors` and `params` tables map
-  various DNS parameters to string names.
-* `classes` and `types` map integer types to names and vice
-  versa.
-* `errors` maps the `rcode` integer to an abbreviated error
-  name, and that name to a friendlier message.
-* Finally, `params` contain symbolic names for some record
-  types.
+-   The `classes`, `types`, `errors` and `params` tables map various DNS
+    parameters to string names.
+-   `classes` and `types` map integer types to names and vice versa.
+-   `errors` maps the `rcode` integer to an abbreviated error name, and
+    that name to a friendlier message.
+-   Finally, `params` contain symbolic names for some record types.
 
 Links
 -----
 
-* <http://prosody.im/>
-* <http://luajit.org/>
-* <https://unbound.net/>
+-   <http://prosody.im/>
+-   <http://luajit.org/>
+-   <https://unbound.net/>
 
-[daneplugin]: http://code.google.com/p/prosody-modules/wiki/mod_s2s_auth_dane
-[DANE]: http://tools.ietf.org/html/rfc6698
