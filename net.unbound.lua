@@ -24,12 +24,23 @@ local dns_utils = require"util.dns";
 local classes, types, errors = dns_utils.classes, dns_utils.types, dns_utils.errors;
 local parsers = dns_utils.parsers;
 
+local function add_defaults(conf)
+	if conf then
+		for option, default in pairs(libunbound.config) do
+			if conf[option] == nil then
+				conf[option] = default;
+			end
+		end
+	end
+	return conf;
+end
+
 local unbound_config;
 if prosody then
-	local config = require"core.configmanager";
+	local config = add_defaults(require"core.configmanager");
 	unbound_config = config.get("*", "unbound");
 	prosody.events.add_handler("config-reloaded", function()
-		unbound_config = config.get("*", "unbound");
+		unbound_config = add_defaults(config.get("*", "unbound"));
 	end);
 end
 -- Note: libunbound will default to using root hints if resolvconf is unset
