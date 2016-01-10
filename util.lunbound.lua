@@ -72,9 +72,8 @@ unbound.config = {
 
 local function parse_result(err, result)
 	ffi.gc(result, libunbound.ub_resolve_free);
-	local answer;
 	if err == 0 and result[0].havedata then
-		answer = {
+		local answer = {
 			qname  = ffi.string(result[0].qname);
 			qtype  = result[0].qtype;
 			qclass = result[0].qclass;
