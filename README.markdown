@@ -8,9 +8,9 @@ Why use it
 ----------
 
 This module can be used with
-[`mod_s2s_auth_dane`](http://modules.prosody.im/mod_s2s_auth_dane.html)
+[`mod_s2s_auth_dane`](https://modules.prosody.im/mod_s2s_auth_dane.html)
 to support secure delegation and for
-[DANE](http://tools.ietf.org/html/rfc6698).
+[DANE](https://tools.ietf.org/html/rfc6698).
 
 DNS commands in the prosody telnet console will also show DNSSEC status.
 
@@ -18,7 +18,7 @@ Downloading
 -----------
 
 Source can be downloaded with mercurial from
-<http://code.zash.se/luaunbound/>.
+<https://code.zash.se/luaunbound/>.
 
 Dependencies
 ------------
@@ -194,7 +194,7 @@ complicated types, such as SOA, MX or SRV.
 Links
 -----
 
--   <http://prosody.im/>
+-   <https://prosody.im/>
 -   <http://luajit.org/>
 -   <https://unbound.net/>
 
