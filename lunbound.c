@@ -254,7 +254,7 @@ void lub_callback(void* data, int err, struct ub_result* result) {
 		lua_pop(L, 1); /* Ignore error */
 	}
 
-	lua_pop(L, 1); /* ub_cb */
+	lua_settop(L, 1);
 }
 
 /*
