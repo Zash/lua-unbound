@@ -157,8 +157,6 @@ static int lub_ctx_getfd(lua_State* L) {
 static int lub_parse_result(lua_State* L, struct ub_result* result) {
 	int i = 0;
 
-	luaL_checkstack(L, 2, NULL);
-
 	lua_createtable(L, 8, 10);
 
 	lua_pushstring(L, result->qname);
