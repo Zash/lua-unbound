@@ -366,7 +366,7 @@ static int lub_call_callbacks(lua_State *L) {
 
 				lua_pushvalue(L, -1); /* my_data */
 				lua_pushnil(L);
-				lua_settable(L, -5); /* ub_queries[my_data] = nil */
+				lua_settable(L, -5); /* ub_cb[my_data] = nil */
 
 				lua_pushnil(L);
 				lua_rawseti(L, -4, my_data->async_id); /* ub_queries[async_id] = nil */
