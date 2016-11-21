@@ -343,10 +343,8 @@ static int lub_call_callbacks(lua_State *L) {
 	luaL_getmetatable(L, "ub_cb");
 	lua_pushnil(L);
 
-	/* stack: errors, ub_queries, ub_cb, nil */
 	while(lua_next(L, -2) != 0) {
 		if(lua_type(L, -2) == LUA_TUSERDATA && lua_type(L, -1) == LUA_TFUNCTION) {
-			/* stack: errors, ub_queries, ub_cb, my_data, callback() */
 			my_data = lua_touserdata(L, -2);
 
 			if(my_data->state++ == 1) {
@@ -354,10 +352,8 @@ static int lub_call_callbacks(lua_State *L) {
 				if(my_data->err != 0) {
 					lua_pushnil(L);
 					lua_pushstring(L, ub_strerror(my_data->err));
-					/* stack: errors, ub_queries, ub_cb, my_data, callback(), nil, err */
 				} else {
 					lub_parse_result(L, my_data->result);
-					/* stack: errors, ub_queries, ub_cb, my_data, callback(), result */
 				}
 
 				if(lua_pcall(L, my_data->err == 0 ? 1 : 2, 0, 0) != 0) {
