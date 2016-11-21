@@ -349,7 +349,8 @@ static int lub_call_callbacks(lua_State *L) {
 		if(lua_type(L, -2) == LUA_TUSERDATA && lua_type(L, -1) == LUA_TFUNCTION) {
 			my_data = lua_touserdata(L, -2);
 
-			if(my_data->state++ == 1) {
+			if(my_data->state == 1) {
+				my_data->state = 2;
 
 				if(my_data->err != 0) {
 					lua_pushnil(L);
