@@ -242,9 +242,9 @@ static int lub_resolve(lua_State *L) {
  */
 void lub_callback(void *data, int err, struct ub_result *result) {
 	cb_data *my_data = (cb_data *)data;
-	my_data->state = 1;
 	my_data->err = err;
-	my_data->result = result;
+	my_data->result = err == 0 ? result : NULL;
+	my_data->state = 1;
 }
 
 /*
@@ -268,6 +268,8 @@ static int lub_resolve_async(lua_State *L) {
 	/* Structure with reference to Lua state */
 	my_data = (cb_data *)lua_newuserdata(L, sizeof(cb_data));
 	my_data->state = 0;
+	my_data->err = 1;
+	my_data->result = NULL;
 
 	/* Start the query */
 	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback,
