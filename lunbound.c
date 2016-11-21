@@ -13,7 +13,7 @@
 
 typedef struct {
 	int async_id;
-	int called;
+	int state;
 	int err;
 	struct ub_result *result;
 } cb_data;
@@ -242,7 +242,7 @@ static int lub_resolve(lua_State *L) {
  */
 void lub_callback(void *data, int err, struct ub_result *result) {
 	cb_data *my_data = (cb_data *)data;
-	my_data->called = 1;
+	my_data->state = 1;
 	my_data->err = err;
 	my_data->result = result;
 }
@@ -267,7 +267,7 @@ static int lub_resolve_async(lua_State *L) {
 
 	/* Structure with reference to Lua state */
 	my_data = (cb_data *)lua_newuserdata(L, sizeof(cb_data));
-	my_data->called = 0;
+	my_data->state = 0;
 
 	/* Start the query */
 	ret = ub_resolve_async(*ctx, qname, rrtype, rrclass, my_data, lub_callback,
@@ -349,7 +349,7 @@ static int lub_call_callbacks(lua_State *L) {
 			/* stack: errors, ub_queries, ub_cb, my_data, callback() */
 			my_data = lua_touserdata(L, -2);
 
-			if(my_data->called == 1) {
+			if(my_data->state++ == 1) {
 
 				if(my_data->err != 0) {
 					lua_pushnil(L);
