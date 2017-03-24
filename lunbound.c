@@ -475,21 +475,22 @@ int luaopen_lunbound(lua_State *L) {
 
 	/* Defaults */
 	luaL_newmetatable(L, "ub_default_config");
-	/* Threads enabled */
-	lua_pushboolean(L, 1);
-	lua_setfield(L, -2, "async");
-	/* Use system resolv.conf */
-	lua_pushboolean(L, 1);
-	lua_setfield(L, -2, "resolvconf");
-	/* Use system hosts.txt */
-	lua_pushboolean(L, 1);
-	lua_setfield(L, -2, "hoststxt");
+	{
+		/* Threads enabled */
+		lua_pushboolean(L, 1);
+		lua_setfield(L, -2, "async");
+		/* Use system resolv.conf */
+		lua_pushboolean(L, 1);
+		lua_setfield(L, -2, "resolvconf");
+		/* Use system hosts.txt */
+		lua_pushboolean(L, 1);
+		lua_setfield(L, -2, "hoststxt");
 #ifdef IANA_ROOT_TA
-	/* Hardcoded root */
-	lua_pushstring(L, IANA_ROOT_TA);
-	lua_setfield(L, -2, "trusted");
+		/* Hardcoded root */
+		lua_pushliteral(L, IANA_ROOT_TA);
+		lua_setfield(L, -2, "trusted");
 #endif
-
+	}
 	lua_setfield(L, -2, "config");
 
 	return 1;
