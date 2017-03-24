@@ -13,7 +13,7 @@
 
 typedef struct {
 	int async_id;
-	int state;
+	int state; /* 0: no results yet, 1: have results, 2: results used */
 	int err;
 	struct ub_result *result;
 } cb_data;
