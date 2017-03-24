@@ -169,7 +169,7 @@ static int lub_ctx_getfd(lua_State *L) {
 static int lub_parse_result(lua_State *L, struct ub_result *result) {
 	int i = 0;
 
-	lua_createtable(L, 8, 10);
+	lua_createtable(L, 4, 10);
 
 	lua_pushstring(L, result->qname);
 	lua_setfield(L, -2, "qname");
@@ -454,7 +454,7 @@ int luaopen_lunbound(lua_State *L) {
 	/* Metatable for contexts */
 	luaL_newmetatable(L, "ub_ctx");
 	luaL_setfuncs(L, ctx_mt, 0);
-	lua_createtable(L, 0, 2);
+	lua_createtable(L, 0, 7);
 	luaL_setfuncs(L, ctx_methods, 0);
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
@@ -468,7 +468,7 @@ int luaopen_lunbound(lua_State *L) {
 	lua_pop(L, 1);
 
 	/* Main module table */
-	lua_createtable(L, 0, 1);
+	lua_createtable(L, 0, 2);
 	luaL_setfuncs(L, lub_lib_funcs, 0);
 	lua_pushstring(L, ub_version());
 	lua_setfield(L, -2, "_LIBVER");
