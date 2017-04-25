@@ -316,15 +316,13 @@ static int lub_cancel(lua_State *L) {
 	luaL_getmetatable(L, "ub_queries");
 	lua_pushvalue(L, 1);
 	lua_gettable(L, -2);                   /* query registry for this ub_ctx */
-	lua_rawgeti(L, -1, async_id);
+	luaL_getmetatable(L, "ub_cb");         /* the callback registry */
+	lua_rawgeti(L, -2, async_id);          /* get the cb_data */
 	lua_pushnil(L);
-	lua_settable(L, -2); /*  */
+	lua_settable(L, -4);                    /* ub_queries[cb_data] = callback */
 	lua_pop(L, 1);
-
-	luaL_getmetatable(L, "ub_cb"); /* Get the callback registry */
 	lua_pushnil(L);
-	lua_rawseti(L, -1, async_id); /* ub_queries[async_id] = nil */
-	lua_pop(L, 1);
+	lua_rawseti(L, -2, async_id);
 
 	lua_pushboolean(L, 1);
 	return 1;
