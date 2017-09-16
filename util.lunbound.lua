@@ -1,7 +1,7 @@
 -- libunbound based net.adns replacement for Prosody IM
 -- Copyright (C) 2012-2015 Kim Alvefur
 --
--- This file is MIT/X11 licensed.
+-- This file is MIT licensed.
 
 local ffi = require "ffi";
 local jit = require "jit";

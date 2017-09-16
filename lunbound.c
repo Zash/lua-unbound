@@ -1,6 +1,6 @@
-/* Copyright (C) 2014-2015 - Kim Alvefur
+/* Copyright (C) 2014-2017 - Kim Alvefur
  *
- * This file is MIT/X11 licensed.
+ * This file is MIT licensed.
  */
 
 #include <lualib.h>

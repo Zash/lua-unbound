@@ -2,7 +2,7 @@
 -- Copyright (C) 2012-2015 Kim Alvefur
 -- Copyright (C) 2012 Waqas Hussain
 --
--- This file is MIT/X11 licensed.
+-- This file is MIT licensed.
 
 local setmetatable = setmetatable;
 local table = table;

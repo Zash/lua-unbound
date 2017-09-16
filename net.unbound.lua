@@ -1,7 +1,7 @@
 -- libunbound based net.adns replacement for Prosody IM
 -- Copyright (C) 2013-2015 Kim Alvefur
 --
--- This file is MIT/X11 licensed.
+-- This file is MIT licensed.
 --
 -- luacheck: ignore prosody
 
