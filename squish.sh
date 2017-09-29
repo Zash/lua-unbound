@@ -6,10 +6,9 @@ Module() {
 	echo 'end);'
 }
 
-# Guard against being loaded without FFI support or the C modlue
-echo 'if pcall(require,"ffi") then'
-Module "lunbound" "util.lunbound.lua"
-echo 'elseif not pcall(require,"util.lunbound") then return end'
+if [ "$1" = "ffi" ]; then
+	Module "lunbound" "util.lunbound.lua"
+fi
 
 Module "net.adns" "net.unbound.lua"
 Module "util.dns" "util.dns.lua"
