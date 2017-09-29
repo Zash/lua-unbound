@@ -192,7 +192,7 @@ local function not_implemented()
 	error "not implemented";
 end
 -- Public API
-return {
+local _M = {
 	lookup = lookup,
 	cancel = cancel;
 	new_async_socket = not_implemented;
@@ -212,3 +212,14 @@ return {
 	};
 };
 
+local wrapper = {
+	lookup = function (_, callback, qname, qtype, qclass)
+		return lookup(callback, qname, qtype, qclass)
+	end
+}
+
+function _M.resolver()
+	return wrapper;
+end
+
+return _M;
