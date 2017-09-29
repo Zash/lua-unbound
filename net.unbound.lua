@@ -17,7 +17,7 @@ local truop = function() return true; end;
 
 local log = require "util.logger".init("unbound");
 local net_server = require "net.server";
-local libunbound = require"util.lunbound";
+local libunbound = require"lunbound";
 
 local gettime = require"socket".gettime;
 local dns_utils = require"util.dns";
