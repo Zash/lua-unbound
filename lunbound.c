@@ -447,6 +447,9 @@ static luaL_Reg lub_lib_funcs[] = {
 #endif
 
 int luaopen_lunbound(lua_State *L) {
+#if (LUA_VERSION_NUM > 501)
+	luaL_checkversion(L);
+#endif
 
 	/* Metatable for contexts */
 	luaL_newmetatable(L, "ub_ctx");
