@@ -7,6 +7,11 @@
 #include <lauxlib.h>
 #include <unbound.h>
 
+#if (LUA_VERSION_NUM == 501)
+#define lua_getuservalue(L, i) lua_getfenv(L, i)
+#define lua_setuservalue(L, i) lua_setfenv(L, i)
+#endif
+
 #ifndef NO_ROOT_TA
 #include "iana_root_ta.h"
 #endif
