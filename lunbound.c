@@ -165,6 +165,32 @@ static int lub_ctx_tostring(lua_State *L) {
 	return 1;
 }
 
+static int lub_query_tostring(lua_State *L) {
+	cb_data *my_data = luaL_checkudata(L, 1, "ub_query");
+	char *state;
+
+	switch(my_data->state) {
+		case 0:
+			state = "pending";
+			break;
+
+		case 1:
+			state = "ready";
+			break;
+
+		case 2:
+			state = "done";
+			break;
+
+		default:
+			state = "unknown";
+			break;
+	}
+
+	lua_pushfstring(L, "ub_query.%s(%d): %p", state, my_data->async_id, my_data);
+	return 1;
+}
+
 /*
  * Get FD to watch in for readability in your event loop
  */
@@ -435,6 +461,14 @@ static luaL_Reg ctx_methods[] = {
 };
 
 /*
+ * Query metatable
+ */
+static luaL_Reg query_mt[] = {
+	{"__tostring", lub_query_tostring},
+	{NULL, NULL}
+};
+
+/*
  * Exported module functions
  */
 static luaL_Reg lub_lib_funcs[] = {
@@ -461,6 +495,7 @@ int luaopen_lunbound(lua_State *L) {
 
 	/* Metatable for queries */
 	luaL_newmetatable(L, "ub_query");
+	luaL_setfuncs(L, query_mt, 0);
 	lua_pop(L, 1);
 
 	/* Main module table */
