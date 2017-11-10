@@ -459,6 +459,10 @@ int luaopen_lunbound(lua_State *L) {
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 1);
 
+	/* Metatable for queries */
+	luaL_newmetatable(L, "ub_query");
+	lua_pop(L, 1);
+
 	/* Main module table */
 	lua_createtable(L, 0, 2);
 	luaL_setfuncs(L, lub_lib_funcs, 0);
