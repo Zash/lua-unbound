@@ -145,16 +145,20 @@ static int lub_ctx_destroy(lua_State *L) {
 	lua_settop(L, 1);
 	lua_getuservalue(L, 1);
 	lua_pushnil(L);
+
 	while(lua_next(L, 2) != 0) {
 		lua_pop(L, 1);
+
 		if(lua_type(L, -2) == LUA_TUSERDATA) {
 			cb_data *my_data = lua_touserdata(L, -2);
+
 			if(my_data->state == 0) {
 				ub_cancel(*ctx, my_data->async_id);
 				my_data->state = 2;
 			}
 		}
 	}
+
 	ub_ctx_delete(*ctx);
 	return 0;
 }
