@@ -418,7 +418,6 @@ static int lub_call_callbacks(lua_State *L) {
  */
 static int lub_process(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 2);
 	ub_process(*ctx); /* calls lub_callback for each completed query */
 	return lub_call_callbacks(L);
 }
