@@ -378,10 +378,23 @@ static int lub_call_callbacks(lua_State *L) {
 		luaL_checktype(L, 2, LUA_TFUNCTION);
 		msgh = 2;
 	}
-	lua_settop(L, 2);
-	lua_getuservalue(L, 1);
 
-	lua_pushnil(L);
+#if LUA_VERSION_NUM >= 502
+
+	if(lua_getctx(L, NULL) == LUA_YIELD) {
+		/*
+		 * Arrange so that the for loop continues where it left off
+		 */
+		lua_settop(L, 4);
+	}
+	else
+#endif
+	{
+		lua_settop(L, 2);
+		lua_getuservalue(L, 1);
+
+		lua_pushnil(L);
+	}
 
 	while(lua_next(L, 3) != 0) {
 		if(lua_type(L, 4) == LUA_TUSERDATA && lua_type(L, 5) == LUA_TFUNCTION) {
