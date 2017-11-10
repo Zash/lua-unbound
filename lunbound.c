@@ -328,7 +328,7 @@ static int lub_cancel(lua_State *L) {
 	lua_getuservalue(L, 1);
 	lua_pushvalue(L, 2);
 	lua_pushnil(L);
-	lua_settable(L, 4);
+	lua_settable(L, 3);
 
 	lua_pushboolean(L, 1);
 	return 1;
