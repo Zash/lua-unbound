@@ -24,8 +24,12 @@ use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
 
 lunbound.o: lunbound.c iana_root_ta.h
 
-iana_root_ta.h: root-anchors.xsl root-anchors.xml
+iana_root_ta.h: root-anchors.xsl root-anchors.xml root-anchors.p7s icannbundle.pem
+	openssl smime -verify -CAfile icannbundle.pem -inform der -in root-anchors.p7s -content root-anchors.xml
 	xsltproc root-anchors.xsl root-anchors.xml > $@
+
+root-anchors.xml root-anchors.p7s icanbundle.pem:
+	$(WGET) https://data.iana.org/root-anchors/$@
 
 %.so: %.o
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
