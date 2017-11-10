@@ -369,17 +369,22 @@ static int lub_cancel(lua_State *L) {
  */
 static int lub_call_callbacks(lua_State *L) {
 	int count = 0;
+	int msgh = 0;
 	cb_data *my_data;
 
 	luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 1);
+	if(!lua_isnoneornil(L, 2)) {
+		luaL_checktype(L, 2, LUA_TFUNCTION);
+		msgh = 2;
+	}
+	lua_settop(L, 2);
 	lua_getuservalue(L, 1);
 
 	lua_pushnil(L);
 
-	while(lua_next(L, 2) != 0) {
-		if(lua_type(L, -2) == LUA_TUSERDATA && lua_type(L, -1) == LUA_TFUNCTION) {
-			my_data = lua_touserdata(L, -2);
+	while(lua_next(L, 3) != 0) {
+		if(lua_type(L, 4) == LUA_TUSERDATA && lua_type(L, 5) == LUA_TFUNCTION) {
+			my_data = lua_touserdata(L, 4);
 
 			if(my_data->state == 1) {
 				my_data->state = 2;
@@ -391,13 +396,15 @@ static int lub_call_callbacks(lua_State *L) {
 					lub_parse_result(L, my_data->result);
 				}
 
-				if(lua_pcall(L, my_data->err == 0 ? 1 : 2, 0, 0) != 0) {
-					lua_pop(L, 1);
-				}
-
-				lua_pushvalue(L, -1); /* my_data */
+				lua_pushvalue(L, 4); /* my_data */
 				lua_pushnil(L);
-				lua_settable(L, 2); /* ub_ctx.uservalue[my_data] = nil */
+				lua_settable(L, 3); /* ub_ctx.uservalue[my_data] = nil */
+
+				if(lua_pcall(L, my_data->err == 0 ? 1 : 2, 0, msgh) != 0) {
+					lua_pushnil(L);
+					lua_insert(L, 5);
+					return 2;
+				}
 
 				count++;
 
