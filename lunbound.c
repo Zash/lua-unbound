@@ -10,6 +10,7 @@
 #if (LUA_VERSION_NUM == 501)
 #define lua_getuservalue(L, i) lua_getfenv(L, i)
 #define lua_setuservalue(L, i) lua_setfenv(L, i)
+#define lua_pcallk(L, nargs, nresults, errfunc, ctx, k) lua_pcall(L, nargs, nresults, errfunc)
 #endif
 
 #ifndef NO_ROOT_TA
@@ -400,7 +401,7 @@ static int lub_call_callbacks(lua_State *L) {
 				lua_pushnil(L);
 				lua_settable(L, 3); /* ub_ctx.uservalue[my_data] = nil */
 
-				if(lua_pcall(L, my_data->err == 0 ? 1 : 2, 0, msgh) != 0) {
+				if(lua_pcallk(L, my_data->err == 0 ? 1 : 2, 0, msgh, 0, lub_call_callbacks) != 0) {
 					lua_pushnil(L);
 					lua_insert(L, 5);
 					return 2;
