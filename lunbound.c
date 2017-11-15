@@ -422,13 +422,10 @@ static int lub_call_callbacks(lua_State *L) {
 				}
 
 				count++;
-
-			} else {
-				lua_pop(L, 1);
 			}
-		} else {
-			lua_pop(L, 1);
 		}
+
+		lua_settop(L, 4);
 	}
 
 	lua_pushinteger(L, count);
