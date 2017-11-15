@@ -154,6 +154,7 @@ static int lub_ctx_destroy(lua_State *L) {
 			cb_data *my_data = lua_touserdata(L, 3);
 
 			ub_cancel(*ctx, my_data->async_id);
+			ub_resolve_free(my_data->result);
 			my_data->state = 2;
 		}
 	}
