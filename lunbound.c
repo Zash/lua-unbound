@@ -151,7 +151,7 @@ static int lub_ctx_destroy(lua_State *L) {
 		lua_pop(L, 1);
 
 		if(lua_type(L, 3) == LUA_TUSERDATA) {
-			cb_data *my_data = lua_touserdata(L, 3);
+			cb_data *my_data = luaL_checkudata(L, 3, "ub_query");
 
 			ub_cancel(*ctx, my_data->async_id);
 			ub_resolve_free(my_data->result);
@@ -398,7 +398,7 @@ static int lub_call_callbacks(lua_State *L) {
 
 	while(lua_next(L, 3) != 0) {
 		if(lua_type(L, 4) == LUA_TUSERDATA && lua_type(L, 5) == LUA_TFUNCTION) {
-			my_data = lua_touserdata(L, 4);
+			my_data = luaL_checkudata(L, 1, "ub_query");
 
 			if(my_data->state == 1) {
 				my_data->state = 2;
