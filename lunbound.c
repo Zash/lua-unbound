@@ -352,6 +352,8 @@ static int lub_cancel(lua_State *L) {
 		return 2;
 	}
 
+	my_data->state = 2;
+
 	lua_settop(L, 2);
 
 	/* ub_ctx.uservalue[my_data] = nil */
