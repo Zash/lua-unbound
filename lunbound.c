@@ -153,10 +153,8 @@ static int lub_ctx_destroy(lua_State *L) {
 		if(lua_type(L, 3) == LUA_TUSERDATA) {
 			cb_data *my_data = lua_touserdata(L, 3);
 
-			if(my_data->state == 0) {
-				ub_cancel(*ctx, my_data->async_id);
-				my_data->state = 2;
-			}
+			ub_cancel(*ctx, my_data->async_id);
+			my_data->state = 2;
 		}
 	}
 
