@@ -421,6 +421,8 @@ static int lub_call_callbacks(lua_State *L) {
 					return 2;
 				}
 
+				lua_settop(L, 3);
+
 				count++;
 			}
 		}
