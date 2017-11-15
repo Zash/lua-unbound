@@ -372,7 +372,6 @@ static int lub_cancel(lua_State *L) {
 static int lub_call_callbacks(lua_State *L) {
 	int count = 0;
 	int msgh = 0;
-	cb_data *my_data;
 
 	luaL_checkudata(L, 1, "ub_ctx");
 
@@ -400,7 +399,7 @@ static int lub_call_callbacks(lua_State *L) {
 
 	while(lua_next(L, 3) != 0) {
 		if(lua_type(L, 4) == LUA_TUSERDATA && lua_type(L, 5) == LUA_TFUNCTION) {
-			my_data = luaL_checkudata(L, 1, "ub_query");
+			cb_data *my_data = luaL_checkudata(L, 4, "ub_query");
 
 			if(my_data->state == 1) {
 				my_data->state = 2;
