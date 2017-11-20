@@ -12,15 +12,11 @@ LDLIBS     += -lunbound
 LDFLAGS    += -shared
 WGET       ?= curl -sSfO
 
-OUTPUT      = use_unbound.lua lunbound.so
+OUTPUT      = lunbound.so
 
 default: lunbound.so
-prosody: use_unbound.lua
 
 all: $(OUTPUT)
-
-use_unbound.lua: fakedns.lua net.unbound.lua util.dns.lua util.lunbound.lua
-	./squish.sh > $@
 
 lunbound.o: lunbound.c iana_root_ta.h
 
@@ -37,10 +33,6 @@ root-anchors.xml root-anchors.p7s icannbundle.pem:
 install:
 	install -d $(DESTDIR)$(LUA_LIBDIR)/
 	install -m644 lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
-
-install-prosody:
-	install -m644 lunbound.so $(DESTDIR)/usr/lib/prosody/util/
-	install -m644 use_unbound.lua $(DESTDIR)/etc/prosody/
 
 clean:
 	-rm -v $(OUTPUT)

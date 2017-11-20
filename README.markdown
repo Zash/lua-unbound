@@ -1,18 +1,8 @@
-libunbound for Prosody
-======================
+libunbound
+==========
 
-This is a drop-in replacement for Prosodys internal DNS library with a
-binding to libunbound.
-
-Why use it
-----------
-
-This module can be used with
-[`mod_s2s_auth_dane`](https://modules.prosody.im/mod_s2s_auth_dane.html)
-to support secure delegation and for
-[DANE](https://tools.ietf.org/html/rfc6698).
-
-DNS commands in the prosody telnet console will also show DNSSEC status.
+This is a binding to [libunbound](https://unbound.net/) for
+[Lua](https://www.lua.org/) .
 
 Downloading
 -----------
@@ -20,70 +10,18 @@ Downloading
 Source can be downloaded with mercurial from
 <https://code.zash.se/luaunbound/>.
 
-Dependencies
-------------
+It is also available from [luarocks](https://luarocks.org/) and can be
+installed by 
 
--   Required
-    -   libunbound
--   Optional
-    -   LuaJIT 2
--   Build-time (not required with LuaJIT)
-    -   Lua headers
-    -   libunbound headers
+    luarocks install luaunbound
 
 Building
 --------
 
-    ./squish.sh > use_unbound.lua
-
-To build the C module (can be skipped if running under LuaJIT):
-
     make
 
-Installation
-------------
-
-1.  Put `use_unbound.lua` in `/etc/prosody` or where your
-    `prosody.cfg.lua` lives.
-
-2.  Install the C module (can be skipped if running under LuaJIT):
-
-    sudo install lunbound.so /path/to/prosody/util/
-
-3.  In the global section of your `prosody.cfg.lua`, add the following:
-
-    RunScript "use\_unbound.lua"
-
-4.  Then start Prosody. (Running under LuaJIT is left as an exercise.)
-5.  If you have debug logging enabled, you should see logs from
-    'unbound' about lookups performed.
-
-Configuration
--------------
-
-The defaults should be sane, but should you wish to override them you
-can set options like this:
-
-    unbound = {
-      resolvconf = "/etc/resolv.conf";
-    }
-
-See *Creating a new context* below for more info.
-
-Modules
--------
-
-`net.unbound`
-:   API-compatible with prosodys `net.adns` DNS library.
-
-`util.lunbound`
-:   The module that wraps libunbound.
-
-`util.dns`
-:   DNS parsing library.
-
-util.lunbound API
------------------
+API
+---
 
 ### Creating a new context
 
@@ -172,29 +110,6 @@ The result table closely resembles libunbounds result struct.
         `bogus` will be `nil`.
 
 The actual result data will be in the array part of the result table, in
-the form of binary strings. Use `util.dns` to parse them into something
-usable.
-
-util.dns API
-------------
-
-The most interesting part of `util.dns` is probably the RR parsers,
-available in the `parsers` table on the module. For example, to parse an
-A record, `dns.parsers.A(data)` returns a formatted IPv4 address.
-Parsers return either a string for simple types or a table for more
-complicated types, such as SOA, MX or SRV.
-
--   The `classes`, `types`, `errors` and `params` tables map various DNS
-    parameters to string names.
--   `classes` and `types` map integer types to names and vice versa.
--   `errors` maps the `rcode` integer to an abbreviated error name, and
-    that name to a friendlier message.
--   Finally, `params` contain symbolic names for some record types.
-
-Links
------
-
--   <https://prosody.im/>
--   <http://luajit.org/>
--   <https://unbound.net/>
+the form of binary strings. It is your job to parse these into whatever
+form you want.
 
