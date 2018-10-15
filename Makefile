@@ -18,14 +18,7 @@ default: lunbound.so
 
 all: $(OUTPUT)
 
-lunbound.o: lunbound.c iana_root_ta.h
-
-iana_root_ta.h: root-anchors.xsl root-anchors.xml root-anchors.p7s icannbundle.pem
-	openssl smime -verify -CAfile icannbundle.pem -inform der -in root-anchors.p7s -content root-anchors.xml
-	xsltproc root-anchors.xsl root-anchors.xml > $@
-
-root-anchors.xml root-anchors.p7s icannbundle.pem:
-	$(WGET) https://data.iana.org/root-anchors/$@
+lunbound.o: lunbound.c
 
 %.so: %.o
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)

@@ -13,10 +13,6 @@
 #define lua_pcallk(L, nargs, nresults, errfunc, ctx, k) lua_pcall(L, nargs, nresults, errfunc)
 #endif
 
-#ifndef NO_ROOT_TA
-#include "iana_root_ta.h"
-#endif
-
 enum cb_state { cb_pending, cb_ready, cb_done };
 typedef struct {
 	int async_id;

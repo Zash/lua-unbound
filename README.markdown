@@ -57,9 +57,6 @@ local resolver = require"luaunbound".new({
     async = true;
     hoststxt = true;
     resolvconf = true;
-    trusted = {
-        ". IN DS 19036 8 2 49AAC..."
-    }
 });
 ```
 
