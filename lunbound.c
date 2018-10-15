@@ -113,6 +113,7 @@ int lub_new(lua_State *L) {
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	} else if(lua_isstring(L, -1)) {
 		ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	} else if(!lua_isnil(L, -1)) {
 		luaL_argerror(L, 1, "'trusted' must be string or array");
 	}
