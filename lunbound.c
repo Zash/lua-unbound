@@ -109,7 +109,6 @@ int lub_new(lua_State *L) {
 			lua_rawgeti(L, -1, i++);
 		}
 
-		lua_pop(L, 1);
 		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	} else if(lua_isstring(L, -1)) {
 		ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
@@ -117,6 +116,8 @@ int lub_new(lua_State *L) {
 	} else if(!lua_isnil(L, -1)) {
 		luaL_argerror(L, 1, "'trusted' must be string or array");
 	}
+
+	lua_pop(L, 1);
 
 	/* Table of libunbound options
 	 */
