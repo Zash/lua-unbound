@@ -139,8 +139,6 @@ int lub_new(lua_State *L) {
 
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 
-	lua_pop(L, 1);
-
 	return 1;
 }
 
