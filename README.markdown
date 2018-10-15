@@ -47,6 +47,9 @@ be used.
 :   DNSSEC root trust anchors, a string or array of strings. Defaults to
     hard-coded IANA root anchors.
 
+`trustfile`
+:   Path to a file containing DNSSEC root trust anchors.
+
 So the defaults as follows:
 
 ``` {.lua}

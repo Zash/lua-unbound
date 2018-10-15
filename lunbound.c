@@ -119,6 +119,20 @@ int lub_new(lua_State *L) {
 
 	lua_pop(L, 1);
 
+	/* List of trust anchors
+	 * ["trustfile"] = "/usr/share/dns/root.ds"
+	 */
+	lua_getfield(L, 1, "trustfile");
+
+	if(lua_isstring(L, -1)) {
+		ret = ub_ctx_add_ta_file(*ctx, (char *)lua_tostring(L, -1));
+		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	} else if(!lua_isnil(L, -1)) {
+		luaL_argerror(L, 1, "'trustfile' must be string");
+	}
+
+	lua_pop(L, 1);
+
 	/* Table of libunbound options
 	 */
 	lua_getfield(L, 1, "options");
@@ -545,6 +559,10 @@ int luaopen_lunbound(lua_State *L) {
 		/* Hardcoded root */
 		lua_pushliteral(L, IANA_ROOT_TA);
 		lua_setfield(L, -2, "trusted");
+#endif
+#ifdef IANA_ROOT_TA_FILE
+		lua_pushliteral(L, IANA_ROOT_TA_FILE);
+		lua_setfield(L, -2, "trustfile");
 #endif
 	}
 	lua_setfield(L, -2, "config");
