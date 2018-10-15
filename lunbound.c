@@ -17,9 +17,10 @@
 #include "iana_root_ta.h"
 #endif
 
+enum cb_state { cb_pending, cb_ready, cb_done };
 typedef struct {
 	int async_id;
-	int state; /* 0: no results yet, 1: have results, 2: results used */
+	enum cb_state state;
 	int err;
 	struct ub_result *result;
 } cb_data;
@@ -155,7 +156,7 @@ static int lub_ctx_destroy(lua_State *L) {
 
 			ub_cancel(*ctx, my_data->async_id);
 			ub_resolve_free(my_data->result);
-			my_data->state = 2;
+			my_data->state = cb_done;
 		}
 	}
 
@@ -174,15 +175,15 @@ static int lub_query_tostring(lua_State *L) {
 	char *state;
 
 	switch(my_data->state) {
-		case 0:
+		case cb_pending:
 			state = "pending";
 			break;
 
-		case 1:
+		case cb_ready:
 			state = "ready";
 			break;
 
-		case 2:
+		case cb_done:
 			state = "done";
 			break;
 
@@ -285,7 +286,7 @@ void lub_callback(void *data, int err, struct ub_result *result) {
 	cb_data *my_data = (cb_data *)data;
 	my_data->err = err;
 	my_data->result = err == 0 ? result : NULL;
-	my_data->state = 1;
+	my_data->state = cb_ready;
 }
 
 /*
@@ -308,7 +309,7 @@ static int lub_resolve_async(lua_State *L) {
 
 	/* Structure with reference to Lua state */
 	my_data = (cb_data *)lua_newuserdata(L, sizeof(cb_data));
-	my_data->state = 0;
+	my_data->state = cb_pending;
 	my_data->err = 1;
 	my_data->result = NULL;
 
@@ -320,7 +321,7 @@ static int lub_resolve_async(lua_State *L) {
 	                       &my_data->async_id);
 
 	if(ret != 0) {
-		my_data->state = 2;
+		my_data->state = cb_done;
 		lua_pushnil(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
@@ -352,7 +353,7 @@ static int lub_cancel(lua_State *L) {
 		return 2;
 	}
 
-	my_data->state = 2;
+	my_data->state = cb_done;
 
 	lua_settop(L, 2);
 
@@ -401,8 +402,8 @@ static int lub_call_callbacks(lua_State *L) {
 		if(lua_type(L, 4) == LUA_TUSERDATA && lua_type(L, 5) == LUA_TFUNCTION) {
 			cb_data *my_data = luaL_checkudata(L, 4, "ub_query");
 
-			if(my_data->state == 1) {
-				my_data->state = 2;
+			if(my_data->state == cb_ready) {
+				my_data->state = cb_done;
 
 				if(my_data->err != 0) {
 					lua_pushnil(L);
