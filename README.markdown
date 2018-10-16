@@ -44,8 +44,7 @@ be used.
     system resolvers are used. Otherwise root hints are used.
 
 `trusted`
-:   DNSSEC root trust anchors, a string or array of strings. Defaults to
-    hard-coded IANA root anchors.
+:   DNSSEC root trust anchors, a string or array of strings.
 
 `trustfile`
 :   Path to a file containing DNSSEC root trust anchors.
