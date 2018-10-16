@@ -6,7 +6,7 @@ LUA_VERSION = 5.2
 LUA_DIR     = /usr/local
 LUA_LIBDIR  = $(LUA_DIR)/lib/lua/$(LUA_VERSION)
 
-CC          = ccache c99
+CC          = c99
 CFLAGS     += -fPIC $(shell pkg-config --cflags lua-$(LUA_VERSION)) -Wall -Wextra -pedantic -ggdb
 LDLIBS     += -lunbound
 LDFLAGS    += -shared
