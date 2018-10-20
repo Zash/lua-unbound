@@ -566,6 +566,3 @@ int luaopen_lunbound(lua_State *L) {
 	return 1;
 }
 
-int luaopen_util_lunbound(lua_State *L) {
-	return luaopen_lunbound(L);
-}
