@@ -11,7 +11,7 @@ Source can be downloaded with mercurial from
 <https://code.zash.se/luaunbound/>.
 
 It is also available from [luarocks](https://luarocks.org/) and can be
-installed by 
+installed by
 
     luarocks install luaunbound
 
@@ -112,4 +112,3 @@ The result table closely resembles libunbounds result struct.
 The actual result data will be in the array part of the result table, in
 the form of binary strings. It is your job to parse these into whatever
 form you want.
-
