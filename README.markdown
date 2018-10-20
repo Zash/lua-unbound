@@ -47,7 +47,8 @@ be used.
 :   DNSSEC root trust anchors, a string or array of strings.
 
 `trustfile`
-:   Path to a file containing DNSSEC root trust anchors.
+:   Path to a file containing DNSSEC root trust anchors. Can be
+    specified at compile-time (recommended for distributors).
 
 The built-in defaults are as follows:
 
