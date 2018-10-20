@@ -49,7 +49,7 @@ be used.
 `trustfile`
 :   Path to a file containing DNSSEC root trust anchors.
 
-So the defaults as follows:
+The built-in defaults are as follows:
 
 ``` {.lua}
 local resolver = require"luaunbound".new({
