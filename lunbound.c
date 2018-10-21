@@ -52,7 +52,7 @@ int lub_new(lua_State *L) {
 	/* Handle config table */
 
 	/* Enable threads?
-	 * ["async"] = true  -- threads
+	 * ["async"] = true  -- threads (default)
 	 *           = false -- fork a process
 	 */
 	lua_getfield(L, 1, "async");
