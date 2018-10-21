@@ -56,7 +56,15 @@ int lub_new(lua_State *L) {
 	 *           = false -- fork a process
 	 */
 	lua_getfield(L, 1, "async");
-	ret = ub_ctx_async(*ctx, lua_isboolean(L, -1) ? lua_toboolean(L, -1) : 1);
+
+	if(lua_isnil(L, -1)) {
+		ret = ub_ctx_async(*ctx, 1);
+	} else if(lua_isboolean(L, -1)) {
+		ret = ub_ctx_async(*ctx, lua_toboolean(L, -1));
+	} else {
+		luaL_argerror(L, 1, "'async' must be boolean");
+	}
+
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
 
@@ -69,8 +77,12 @@ int lub_new(lua_State *L) {
 
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_resolvconf(*ctx, (char *)lua_tostring(L, -1));
-	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-		ret = ub_ctx_resolvconf(*ctx, NULL);
+	} else if(lua_isboolean(L, -1)) {
+		if(lua_toboolean(L, -1)) {
+			ret = ub_ctx_resolvconf(*ctx, NULL);
+		}
+	} else if(!lua_isnil(L, -1)) {
+		luaL_argerror(L, 1, "'resolvconf' must be string or boolean");
 	}
 
 	/* else use root hits */
@@ -85,8 +97,12 @@ int lub_new(lua_State *L) {
 
 	if(lua_isstring(L, -1)) {
 		ret = ub_ctx_hosts(*ctx, (char *)lua_tostring(L, -1));
-	} else if(lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-		ret = ub_ctx_hosts(*ctx, NULL);
+	} else if(lua_isboolean(L, -1)) {
+		if(lua_toboolean(L, -1)) {
+			ret = ub_ctx_hosts(*ctx, NULL);
+		}
+	} else if(!lua_isnil(L, -1)) {
+		luaL_argerror(L, 1, "'hoststxt' must be string or boolean");
 	}
 
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
