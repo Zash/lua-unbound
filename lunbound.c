@@ -45,6 +45,7 @@ int lub_new(lua_State *L) {
 	luaL_getmetatable(L, "ub_ctx");
 	lua_setmetatable(L, -2);
 
+	/* Create table holding pending queries */
 	lua_createtable(L, 0, 1);
 	lua_setuservalue(L, 2);
 
