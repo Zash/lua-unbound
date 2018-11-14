@@ -10,7 +10,6 @@ CC          = c99
 CFLAGS     += -fPIC $(shell pkg-config --cflags lua-$(LUA_VERSION)) -Wall -Wextra -pedantic -ggdb
 LDLIBS     += -lunbound
 LDFLAGS    += -shared
-WGET       ?= curl -sSfO
 
 OUTPUT      = lunbound.so
 
