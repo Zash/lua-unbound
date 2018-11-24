@@ -11,6 +11,7 @@
 #define lua_getuservalue(L, i) lua_getfenv(L, i)
 #define lua_setuservalue(L, i) lua_setfenv(L, i)
 #define lua_pcallk(L, nargs, nresults, errfunc, ctx, k) lua_pcall(L, nargs, nresults, errfunc)
+#define LUA_OK 0
 #endif
 
 enum cb_state { cb_pending, cb_ready, cb_done };
@@ -394,12 +395,23 @@ static int lub_cancel(lua_State *L) {
 	return 1;
 }
 
+#if LUA_VERSION_NUM < 503
+#define lua_KContext ptrdiff_t
+#endif
+
 /*
  * Call callbacks
  */
-static int lub_call_callbacks(lua_State *L) {
+static int lub_call_callbacks(lua_State *L);
+static int lub_call_callbacksk(lua_State *L, int status, __attribute__((unused)) lua_KContext ctx) {
 	int count = 0;
 	int msgh = 0;
+
+#if LUA_VERSION_NUM >= 503
+#define SELF lub_call_callbacksk
+#else
+#define SELF lub_call_callbacks
+#endif
 
 	luaL_checkudata(L, 1, "ub_ctx");
 
@@ -408,16 +420,14 @@ static int lub_call_callbacks(lua_State *L) {
 		msgh = 2;
 	}
 
-#if LUA_VERSION_NUM >= 502
-
-	if(lua_getctx(L, NULL) == LUA_YIELD) {
+	if(status == LUA_YIELD)
+	{
 		/*
 		 * Arrange so that the for loop continues where it left off
 		 */
 		lua_settop(L, 4);
 	}
 	else
-#endif
 	{
 		lua_settop(L, 2);
 		lua_getuservalue(L, 1);
@@ -443,7 +453,7 @@ static int lub_call_callbacks(lua_State *L) {
 				lua_pushnil(L);
 				lua_settable(L, 3); /* ub_ctx.uservalue[my_data] = nil */
 
-				if(lua_pcallk(L, my_data->err == 0 ? 1 : 2, 0, msgh, 0, lub_call_callbacks) != 0) {
+				if(lua_pcallk(L, my_data->err == 0 ? 1 : 2, 0, msgh, 0, SELF) != 0) {
 					lua_pushnil(L);
 					lua_insert(L, 5);
 					return 2;
@@ -458,8 +468,14 @@ static int lub_call_callbacks(lua_State *L) {
 		lua_settop(L, 4);
 	}
 
+#undef SELF
+
 	lua_pushinteger(L, count);
 	return 1;
+}
+
+static int lub_call_callbacks(lua_State *L) {
+	return lub_call_callbacksk(L, LUA_OK, 0);
 }
 
 /*
