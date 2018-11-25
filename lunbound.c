@@ -27,7 +27,7 @@ typedef struct {
  * Takes an optional single table with options as argument.
  */
 int lub_new(lua_State *L) {
-	int ret;
+	int ret = 0;
 	int i = 1;
 	struct ub_ctx **ctx;
 
