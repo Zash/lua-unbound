@@ -11,6 +11,9 @@ CFLAGS     += -fPIC $(shell pkg-config --cflags lua-$(LUA_VERSION)) -Wall -Wextr
 LDLIBS     += -lunbound
 LDFLAGS    += -shared
 
+CFLAGS     += $(MYCFLAGS)
+LDFLAGS    += $(MYLDFLAGS)
+
 OUTPUT      = lunbound.so
 
 default: lunbound.so
