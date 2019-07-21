@@ -1,4 +1,4 @@
-libunbound
+luaunbound
 ==========
 
 This is a binding to [libunbound](https://unbound.net/) for
