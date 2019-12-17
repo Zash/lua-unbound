@@ -26,7 +26,7 @@ typedef struct {
  * Create a new context.
  * Takes an optional single table with options as argument.
  */
-int lub_new(lua_State *L) {
+static int lub_new(lua_State *L) {
 	int ret = 0;
 	int i = 1;
 	struct ub_ctx **ctx;
