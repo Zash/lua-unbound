@@ -46,7 +46,8 @@ be used.
     system resolvers are used. Otherwise root hints are used.
 
 `forward`
-:   IP address of an upstream resolver to use.
+:   IP address of an upstream resolver(s) to use, a string or array of
+    strings.
 
 `trusted`
 :   DNSSEC root trust anchors, a string or array of strings.
