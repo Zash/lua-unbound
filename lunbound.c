@@ -112,6 +112,17 @@ static int lub_new(lua_State *L) {
 	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
 
+	lua_getfield(L, 1, "forward");
+
+	if(lua_isstring(L, -1)) {
+		ret = ub_ctx_set_fwd(*ctx, (char *)lua_tostring(L, -1));
+	} else if(!lua_isnil(L, -1)) {
+		luaL_argerror(L, 1, "'forward' must be string");
+	}
+
+	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lua_pop(L, 1);
+
 	/* List of trust anchors
 	 * ["trusted"] = ". IN DS ..." -- Single string or array of strings
 	 */

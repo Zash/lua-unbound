@@ -45,6 +45,9 @@ be used.
 :   Path to resolver configuration. If set to `true` then the default
     system resolvers are used. Otherwise root hints are used.
 
+`forward`
+:   IP address of an upstream resolver to use.
+
 `trusted`
 :   DNSSEC root trust anchors, a string or array of strings.
 
