@@ -10,6 +10,8 @@ Downloading
 Source can be downloaded with mercurial from
 <https://code.zash.se/luaunbound/>.
 
+Signed releases can be found at <https://code.zash.se/dl/luaunbound/>.
+
 It is also available from [luarocks](https://luarocks.org/) and can be
 installed by
 
