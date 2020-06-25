@@ -569,6 +569,10 @@ int luaopen_lunbound(lua_State *L) {
 	/* Main module table */
 	lua_createtable(L, 0, 2);
 	luaL_setfuncs(L, lub_lib_funcs, 0);
+
+	lua_pushliteral(L, "0.5");
+	lua_setfield(L, -2, "_VERSION");
+
 	lua_pushstring(L, ub_version());
 	lua_setfield(L, -2, "_LIBVER");
 
