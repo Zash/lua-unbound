@@ -3,8 +3,7 @@
 .INTERMEDIATE: lunbound.o
 
 LUA_VERSION = 5.2
-LUA_DIR     = /usr/local
-LUA_LIBDIR  = $(LUA_DIR)/lib/lua/$(LUA_VERSION)
+LUA_LIBDIR  = $(shell pkg-config --variable=INSTALL_CMOD lua-$(LUA_VERSION))
 
 CC          = c99
 CFLAGS     += -fPIC $(shell pkg-config --cflags lua-$(LUA_VERSION)) -Wall -Wextra -pedantic -ggdb
