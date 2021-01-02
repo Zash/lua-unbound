@@ -7,7 +7,7 @@ This is a binding to [libunbound](https://unbound.net/) for
 Downloading
 -----------
 
-Source can be downloaded with mercurial from
+Source can be downloaded with Mercurial from
 <https://code.zash.se/luaunbound/>.
 
 Signed releases can be found at <https://code.zash.se/dl/luaunbound/>.
