@@ -15,6 +15,9 @@ LDFLAGS    += $(MYLDFLAGS)
 
 OUTPUT      = lunbound.so
 
+MKDIR       = install -d
+INSTALL     = install -m644
+
 default: lunbound.so
 
 all: $(OUTPUT)
@@ -25,8 +28,8 @@ lunbound.o: lunbound.c
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
-	install -d $(DESTDIR)$(LUA_LIBDIR)/
-	install -m644 lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
+	$(MKDIR) $(DESTDIR)$(LUA_LIBDIR)/
+	$(INSTALL) lunbound.so $(DESTDIR)$(LUA_LIBDIR)/
 
 clean:
 	-rm -v $(OUTPUT)
