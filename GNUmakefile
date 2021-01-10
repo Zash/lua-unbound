@@ -3,10 +3,11 @@
 .INTERMEDIATE: lunbound.o
 
 LUA_VERSION = 5.2
-LUA_LIBDIR  = $(shell pkg-config --variable=INSTALL_CMOD lua-$(LUA_VERSION))
+LUA_PC      = lua-$(LUA_VERSION)
+LUA_LIBDIR  = $(shell pkg-config --variable=INSTALL_CMOD $(LUA_PC))
 
 CC          = c99
-CFLAGS     += -fPIC $(shell pkg-config --cflags lua-$(LUA_VERSION)) -Wall -Wextra -pedantic -ggdb
+CFLAGS     += -fPIC $(shell pkg-config --cflags $(LUA_PC)) -Wall -Wextra -pedantic -ggdb
 LDLIBS     += -lunbound
 LDFLAGS    += -shared
 
