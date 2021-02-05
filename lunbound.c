@@ -13,6 +13,9 @@
 #define lua_pcallk(L, nargs, nresults, errfunc, ctx, k) lua_pcall(L, nargs, nresults, errfunc)
 #define LUA_OK 0
 #endif
+#if (LUA_VERSION_NUM < 504)
+#define luaL_pushfail lua_pushnil
+#endif
 
 enum cb_state { cb_pending, cb_ready, cb_done };
 typedef struct {
@@ -299,7 +302,7 @@ static int lub_resolve(lua_State *L) {
 	int ret = ub_resolve(*ctx, qname, rrtype, rrclass, &result);
 
 	if(ret != 0) {
-		lua_pushnil(L);
+		luaL_pushfail(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
@@ -350,7 +353,7 @@ static int lub_resolve_async(lua_State *L) {
 
 	if(ret != 0) {
 		my_data->state = cb_done;
-		lua_pushnil(L);
+		luaL_pushfail(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
@@ -376,7 +379,7 @@ static int lub_cancel(lua_State *L) {
 	int ret = ub_cancel(*ctx, my_data->async_id);
 
 	if(ret != 0) {
-		lua_pushnil(L);
+		luaL_pushfail(L);
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
@@ -443,7 +446,7 @@ static int lub_call_callbacksk(lua_State *L, int status, __attribute__((unused))
 				my_data->state = cb_done;
 
 				if(my_data->err != 0) {
-					lua_pushnil(L);
+					luaL_pushfail(L);
 					lua_pushstring(L, ub_strerror(my_data->err));
 				} else {
 					lub_parse_result(L, my_data->result);
@@ -454,7 +457,7 @@ static int lub_call_callbacksk(lua_State *L, int status, __attribute__((unused))
 				lua_settable(L, 3); /* ub_ctx.uservalue[my_data] = nil */
 
 				if(lua_pcallk(L, my_data->err == 0 ? 1 : 2, 0, msgh, 0, SELF) != 0) {
-					lua_pushnil(L);
+					luaL_pushfail(L);
 					lua_insert(L, 5);
 					return 2;
 				}
