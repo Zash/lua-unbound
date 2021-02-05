@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2018 - Kim Alvefur
+/* Copyright (C) 2014-2021 - Kim Alvefur
  *
  * This file is MIT licensed.
  */
