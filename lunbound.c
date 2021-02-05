@@ -176,6 +176,14 @@ static int lub_new(lua_State *L) {
 static int lub_ctx_destroy(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_settop(L, 1);
+
+	/* Cancel any outstanding queries so that they don't cause any interaction
+	 * with the ub_ctx after it has been freed.
+	 *
+	 * TODO Better to have queries cancel themselves on __gc?
+	 * They still need to reference the ub_ctx to ensure things gets collected in
+	 * a sane order.
+	 */
 	lua_getuservalue(L, 1);
 	lua_pushnil(L);
 
@@ -357,6 +365,9 @@ static int lub_resolve_async(lua_State *L) {
 		lua_pushstring(L, ub_strerror(ret));
 		return 2;
 	}
+
+	/* Anchor callback in cb_data so that it does not get garbage-collected
+	 * before we need it  */
 
 	/* uservalue[my_data] = callback */
 	lua_getuservalue(L, 1);
