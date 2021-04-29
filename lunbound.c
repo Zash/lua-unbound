@@ -163,7 +163,7 @@ static int lub_new(lua_State *L) {
 			lua_pop(L, 1);
 		}
 	} else if(!lua_isnil(L, -1)) {
-		luaL_argerror(L, 1, "'options' must be string or array");
+		luaL_argerror(L, 1, "'options' must be a table");
 	}
 
 	lua_pop(L, 1); /* options table */
