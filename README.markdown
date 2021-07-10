@@ -1,11 +1,9 @@
-luaunbound
-==========
+# luaunbound
 
 This is a binding to [libunbound](https://unbound.net/) for
 [Lua](https://www.lua.org/) .
 
-Downloading
------------
+## Downloading
 
 Source can be downloaded with Mercurial from
 <https://code.zash.se/luaunbound/>.
@@ -17,13 +15,11 @@ installed by
 
     luarocks install luaunbound
 
-Building
---------
+## Building
 
     make
 
-API
----
+## API
 
 ### Creating a new context
 
@@ -58,7 +54,7 @@ be used.
 
 The built-in defaults are as follows:
 
-``` {.lua}
+``` lua
 local resolver = require"luaunbound".new({
     async = true;
     hoststxt = true;
