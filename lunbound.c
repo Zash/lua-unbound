@@ -607,7 +607,7 @@ int luaopen_lunbound(lua_State *L) {
 	lua_createtable(L, 0, 2);
 	luaL_setfuncs(L, lub_lib_funcs, 0);
 
-	lua_pushliteral(L, "0.5");
+	lua_pushliteral(L, "1.0.0");
 	lua_setfield(L, -2, "_VERSION");
 
 	lua_pushstring(L, ub_version());
