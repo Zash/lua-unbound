@@ -435,6 +435,11 @@ static int lub_cancel(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	cb_data *my_data = luaL_checkudata(L, 2, "ub_query");
 
+	if(my_data->state == cb_done) {
+		lua_pushboolean(L, 1);
+		return 1;
+	}
+
 	int ret = ub_cancel(*ctx, my_data->async_id);
 
 	if(ret != 0) {
