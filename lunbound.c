@@ -614,6 +614,7 @@ static int lub_poll(lua_State *L) {
  */
 static luaL_Reg ctx_mt[] = {
 	{"__gc", lub_ctx_destroy},
+	{"__close", lub_ctx_destroy},
 	{"__tostring", lub_ctx_tostring},
 	{NULL, NULL}
 };
