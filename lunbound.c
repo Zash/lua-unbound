@@ -209,31 +209,29 @@ static int lub_new(lua_State *L) {
 	return 1;
 }
 
-static int lub_ctx_destroy(lua_State *L) {
-	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
-	lua_settop(L, 1);
-
-	/* Cancel any outstanding queries so that they don't cause any interaction
-	 * with the ub_ctx after it has been freed.
-	 *
-	 * TODO Better to have queries cancel themselves on __gc?
-	 * They still need to reference the ub_ctx to ensure things gets collected in
-	 * a sane order.
-	 */
-	lua_getuservalue(L, 1);
+static void lub_cancel_all(lua_State *L, struct ub_ctx **ctx) {
+	lua_getuservalue(L, -1);
 	lua_pushnil(L);
 
-	while(lua_next(L, 2) != 0) {
+	while(lua_next(L, -2) != 0) {
 		lua_pop(L, 1);
 
-		if(lua_type(L, 3) == LUA_TUSERDATA) {
-			cb_data *my_data = luaL_checkudata(L, 3, "ub_query");
+		if(lua_type(L, -1) == LUA_TUSERDATA) {
+			cb_data *my_data = luaL_checkudata(L, -1, "ub_query");
 
 			ub_cancel(*ctx, my_data->async_id);
 			ub_resolve_free(my_data->result);
 			my_data->state = cb_done;
 		}
 	}
+
+}
+
+static int lub_ctx_destroy(lua_State *L) {
+	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
+	lua_settop(L, 1);
+
+	lub_cancel_all(L, ctx);
 
 	ub_ctx_delete(*ctx);
 	return 0;
