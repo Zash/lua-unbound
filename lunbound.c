@@ -237,6 +237,20 @@ static int lub_ctx_destroy(lua_State *L) {
 	return 0;
 }
 
+static int lub_ctx_cancelall(lua_State *L) {
+	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
+	lua_settop(L, 1);
+
+	lub_cancel_all(L, ctx);
+
+	lua_settop(L, 1);
+	lua_createtable(L, 0, 0);
+	lua_setuservalue(L, 1);
+
+	lua_pushboolean(L, 1);
+	return 1;
+
+}
 static int lub_ctx_tostring(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_pushfstring(L, "ub_ctx: %p", ctx);
@@ -570,6 +584,7 @@ static luaL_Reg ctx_methods[] = {
 	{"resolve", lub_resolve},
 	{"resolve_async", lub_resolve_async},
 	{"cancel", lub_cancel},
+	{"cancelall", lub_ctx_cancelall},
 	{"process", lub_process},
 	{"wait", lub_wait},
 	{"poll", lub_poll},
