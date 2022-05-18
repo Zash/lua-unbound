@@ -325,8 +325,8 @@ static int lub_parse_result(lua_State *L, struct ub_result *result) {
  * Perform an synchronous lookup
  */
 static int lub_resolve(lua_State *L) {
-	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	struct ub_result *result;
+	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	char *qname = (char *)luaL_checkstring(L, 2);
 	int rrtype = luaL_optinteger(L, 3, 1);
 	int rrclass = luaL_optinteger(L, 4, 1);
