@@ -219,12 +219,14 @@ static void lub_cancel_all(lua_State *L, struct ub_ctx **ctx) {
 		if(lua_type(L, -1) == LUA_TUSERDATA) {
 			cb_data *my_data = luaL_checkudata(L, -1, "ub_query");
 
-			ub_cancel(*ctx, my_data->async_id);
-			ub_resolve_free(my_data->result);
-			my_data->state = cb_done;
+			if(ub_cancel(*ctx, my_data->async_id) != 0) {
+				ub_resolve_free(my_data->result);
+				my_data->state = cb_done;
+			}
+
+			/* TODO else return failure? */
 		}
 	}
-
 }
 
 static int lub_ctx_destroy(lua_State *L) {
