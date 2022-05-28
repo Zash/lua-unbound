@@ -419,12 +419,19 @@ static int lub_resolve_async(lua_State *L) {
 	/* Anchor callback in cb_data so that it does not get garbage-collected
 	 * before we need it  */
 
-	/* uservalue[my_data] = callback */
+	/* ctx.uservalue[my_data] = callback */
 	lua_getuservalue(L, 1);
 	lua_pushvalue(L, 6); /* the cb_data userdata */
 	lua_pushvalue(L, 2); /* the callback */
 	lua_settable(L, -3);
 	lua_pop(L, 1);
+
+	/* Anchor the context in the query so that it can't get garbage
+	 * collected before the query finishes */
+
+	/* cb_data.uservalue = ctx */
+	lua_pushvalue(L, 1); /* ub_ctx */
+	lua_setuservalue(L, 6); /* cb_data */
 
 	/* return cb_data */
 	return 1;
