@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2021 - Kim Alvefur
+/* Copyright (C) 2014-2022 - Kim Alvefur
  *
  * This file is MIT licensed.
  */
@@ -16,6 +16,9 @@
 #if (LUA_VERSION_NUM < 504)
 #define luaL_pushfail lua_pushnil
 #endif
+
+#define lub_argcheck(L, field, ret) \
+	if(ret != 0) { return luaL_error(L, "lunbound.new(): error configuring '%s': %s", field, ub_strerror(ret)); }
 
 enum cb_state { cb_pending, cb_ready, cb_done };
 typedef struct {
@@ -69,7 +72,8 @@ static int lub_new(lua_State *L) {
 		luaL_argerror(L, 1, "'async' must be boolean");
 	}
 
-	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lub_argcheck(L, "async", ret);
+
 	lua_pop(L, 1);
 
 	/* Path to resolv.conf
@@ -89,8 +93,9 @@ static int lub_new(lua_State *L) {
 		luaL_argerror(L, 1, "'resolvconf' must be string or boolean");
 	}
 
+	lub_argcheck(L, "resolvconf", ret);
+
 	/* else use root hits */
-	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
 
 	/* Path to hosts.txt
@@ -109,7 +114,8 @@ static int lub_new(lua_State *L) {
 		luaL_argerror(L, 1, "'hoststxt' must be string or boolean");
 	}
 
-	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+	lub_argcheck(L, "hoststxt", ret);
+
 	lua_pop(L, 1);
 
 	lua_getfield(L, 1, "forward");
@@ -119,20 +125,25 @@ static int lub_new(lua_State *L) {
 
 		while(ret == 0 && lua_isstring(L, -1)) {
 			ret = ub_ctx_set_fwd(*ctx, (char *)lua_tostring(L, -1));
+
+			if(ret != 0) {
+				return luaL_error(L, "lunbound.new(): error configuring 'forward[%d]': %s", i, ub_strerror(ret));
+			}
+
 			lua_pop(L, 1);
 			lua_rawgeti(L, -1, i++);
 		}
+
 		lua_pop(L, 1);
 
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 		i = 1;
 	} else if(lua_isstring(L, -1)) {
 		ret = ub_ctx_set_fwd(*ctx, (char *)lua_tostring(L, -1));
+		lub_argcheck(L, "forward", ret);
 	} else if(!lua_isnil(L, -1)) {
 		luaL_argerror(L, 1, "'forward' must be string or array");
 	}
 
-	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	lua_pop(L, 1);
 
 	/* List of trust anchors
@@ -148,14 +159,13 @@ static int lub_new(lua_State *L) {
 			lua_pop(L, 1);
 			lua_rawgeti(L, -1, i++);
 		}
-
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	} else if(lua_isstring(L, -1)) {
 		ret = ub_ctx_add_ta(*ctx, (char *)lua_tostring(L, -1));
-		luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 	} else if(!lua_isnil(L, -1)) {
 		luaL_argerror(L, 1, "'trusted' must be string or array");
 	}
+
+	lub_argcheck(L, "trusted", ret);
 
 	lua_pop(L, 1);
 
@@ -183,6 +193,11 @@ static int lub_new(lua_State *L) {
 		while(lua_next(L, -2) != 0) {
 			ret = ub_ctx_set_option(*ctx, (char *)lua_tostring(L, -2), (char *)lua_tostring(L, -1));
 			luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
+
+			if(ret != 0) {
+				return luaL_error(L, "lunbound.new(): error configuring 'options.%s': %s", (char *)lua_tostring(L, -2), ub_strerror(ret));
+			}
+
 			lua_pop(L, 1);
 		}
 	} else if(!lua_isnil(L, -1)) {
@@ -190,8 +205,6 @@ static int lub_new(lua_State *L) {
 	}
 
 	lua_pop(L, 1); /* options table */
-
-	luaL_argcheck(L, ret == 0, 1, ub_strerror(ret));
 
 	return 1;
 }
