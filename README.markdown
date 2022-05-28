@@ -1,7 +1,7 @@
 # luaunbound
 
 This is a binding to [libunbound](https://unbound.net/) for
-[Lua](https://www.lua.org/) .
+[Lua](https://www.lua.org/).
 
 ## Downloading
 
