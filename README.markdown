@@ -52,6 +52,9 @@ be used.
 :   Path to a file containing DNSSEC root trust anchors. Can be
     specified at compile-time (recommended for distributors).
 
+`options`
+:   Table allowing arbitrary settings from `unbound.conf`.
+
 The built-in defaults are as follows:
 
 ``` lua
