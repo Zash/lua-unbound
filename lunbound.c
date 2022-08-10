@@ -617,7 +617,7 @@ int luaopen_lunbound(lua_State *L) {
 	lua_pop(L, 1);
 
 	/* Main module table */
-	lua_createtable(L, 0, 2);
+	lua_createtable(L, 0, 4);
 	luaL_setfuncs(L, lub_lib_funcs, 0);
 
 	lua_pushliteral(L, "1.0.0");
