@@ -233,15 +233,24 @@ static int lub_ctx_destroy(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_settop(L, 1);
 
+	if(*ctx == NULL) {
+		return 0;
+	}
+
 	lub_cancel_all(L, ctx);
 
 	ub_ctx_delete(*ctx);
+	*ctx = NULL;
 	return 0;
 }
 
 static int lub_ctx_cancelall(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	lua_settop(L, 1);
+
+	if(*ctx == NULL) {
+		return 0;
+	}
 
 	lub_cancel_all(L, ctx);
 
@@ -444,6 +453,10 @@ static int lub_cancel(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
 	cb_data *my_data = luaL_checkudata(L, 2, "ub_query");
 
+	if(*ctx == NULL) {
+		return luaL_error(L, "attempt to use freed ub_ctx");
+	}
+
 	if(my_data->state == cb_done) {
 		lua_pushboolean(L, 1);
 		return 1;
@@ -559,6 +572,11 @@ static int lub_call_callbacks(lua_State *L) {
  */
 static int lub_process(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
+
+	if(*ctx == NULL) {
+		return luaL_error(L, "attempt to use freed ub_ctx");
+	}
+
 	ub_process(*ctx); /* calls lub_callback for each completed query */
 	return lub_call_callbacks(L);
 }
@@ -568,6 +586,11 @@ static int lub_process(lua_State *L) {
  */
 static int lub_wait(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
+
+	if(*ctx == NULL) {
+		return luaL_error(L, "attempt to use freed ub_ctx");
+	}
+
 	ub_wait(*ctx);
 	return lub_call_callbacks(L);
 }
@@ -577,6 +600,11 @@ static int lub_wait(lua_State *L) {
  */
 static int lub_poll(lua_State *L) {
 	struct ub_ctx **ctx = luaL_checkudata(L, 1, "ub_ctx");
+
+	if(*ctx == NULL) {
+		return luaL_error(L, "attempt to use freed ub_ctx");
+	}
+
 	lua_pushboolean(L, ub_poll(*ctx));
 	return 1;
 }
