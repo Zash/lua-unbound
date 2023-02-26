@@ -7,6 +7,10 @@
 #include <lauxlib.h>
 #include <unbound.h>
 
+#ifdef _MSC_VER
+#define __attribute__(attr)
+#endif
+
 #if (LUA_VERSION_NUM == 501)
 #define lua_getuservalue(L, i) lua_getfenv(L, i)
 #define lua_setuservalue(L, i) lua_setfenv(L, i)
