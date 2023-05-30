@@ -2,7 +2,7 @@
 .PHONY: all clean
 .INTERMEDIATE: lunbound.o
 
-LUA_VERSION = 5.2
+LUA_VERSION = 5.4
 LUA_PC      = lua-$(LUA_VERSION)
 LUA_LIBDIR  = $(shell pkg-config --variable=INSTALL_CMOD $(LUA_PC))
 
