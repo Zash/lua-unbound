@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2022 - Kim Alvefur
+/* Copyright (C) Kim Alvefur <zash@zash.se>
  *
  * This file is MIT licensed.
  */
