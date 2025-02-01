@@ -1,7 +1,19 @@
 # luaunbound
 
 This is a binding to [libunbound](https://unbound.net/) for
-[Lua](https://www.lua.org/).
+[Lua](https://www.lua.org/), allowing both asynchronous and
+DNSSEC-secured DNS lookups of arbitrary DNS record types.
+
+It was created because [Prosody](https://prosody.im/) needs an
+asynchronous DNS library with support for SRV records, and the ones
+found at the time did one or the other, or was missing DNSSEC that
+allowed implementing
+[DANE](https://www.internetsociety.org/resources/deploy360/dane/).
+
+It originated out of a need in the [XMPP](https://xmpp.org/) server
+software [Prosody](https://prosody.im/) for an async-capable resolver
+library supporting SRV records, as well as a desire to experiment with
+DNSSEC and new DNS records.
 
 ## Downloading
 
