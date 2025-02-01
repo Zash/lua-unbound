@@ -238,9 +238,12 @@ static void lub_cancel_all(lua_State *L, struct ub_ctx **ctx) {
 			if(ub_cancel(*ctx, my_data->async_id) != 0) {
 				ub_resolve_free(my_data->result);
 				my_data->state = cb_done;
+				my_data->async_id = 0;
 			}
-
-			/* TODO else return failure? */
+			else {
+				luaL_error(L, "ub_cancel(%d) failed", my_data->async_id);
+				return; /* luaL_error() longjumps away so does not actually return here */
+			}
 		}
 	}
 }
