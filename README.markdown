@@ -102,7 +102,7 @@ local resolver = require"luaunbound".new({
 
 ### Result table
 
-The result table closely resembles libunbounds result struct.
+The result table closely resembles libunbounds `struct ub_result`.
 
 `qname`, `qtype` and `qclass`
 :   Same as arguments to resolve methods.
